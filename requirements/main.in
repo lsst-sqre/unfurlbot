@@ -16,3 +16,5 @@ uvicorn[standard]
 pydantic
 pydantic-settings
 safir>=5
+faststream[kafka]
+rubin-squarebot @ git+https://github.com/lsst-sqre/squarebot@tickets/DM-42875#subdirectory=client

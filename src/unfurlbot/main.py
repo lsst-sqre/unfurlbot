@@ -17,7 +17,6 @@ from safir.logging import configure_logging, configure_uvicorn_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
 
 from .config import config
-from .handlers.external import external_router
 from .handlers.internal import internal_router
 
 __all__ = ["app", "config"]
@@ -54,7 +53,6 @@ app = FastAPI(
 
 # Attach the routers.
 app.include_router(internal_router)
-app.include_router(external_router, prefix=f"{config.path_prefix}")
 
 # Add middleware.
 app.add_middleware(XForwardedMiddleware)

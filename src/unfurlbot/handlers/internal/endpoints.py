@@ -1,17 +1,14 @@
 """Internal HTTP handlers that serve relative to the root path, ``/``.
 
-These handlers aren't externally visible since the app is available at a path,
-``/unfurlbot``. See `unfurlbot.handlers.external` for
-the external endpoint handlers.
-
 These handlers should be used for monitoring, health checks, internal status,
 or other information that should not be visible outside the Kubernetes cluster.
+These handlers aren't externally visible.
 """
 
 from fastapi import APIRouter
 from safir.metadata import Metadata, get_metadata
 
-from ..config import config
+from unfurlbot.config import config
 
 __all__ = ["get_index", "internal_router"]
 

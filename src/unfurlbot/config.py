@@ -1,4 +1,4 @@
-"""Configuration definition."""
+"""Application settings."""
 
 from __future__ import annotations
 
@@ -14,9 +14,7 @@ class Config(BaseSettings):
 
     name: str = Field("unfurlbot", title="Name of application")
 
-    path_prefix: str = Field(
-        "/unfurlbot", title="URL prefix for application"
-    )
+    path_prefix: str = Field("/unfurlbot", title="URL prefix for application")
 
     profile: Profile = Field(
         Profile.development, title="Application logging profile"

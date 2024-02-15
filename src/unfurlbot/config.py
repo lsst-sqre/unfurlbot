@@ -215,6 +215,10 @@ class Config(BaseSettings):
 
     slack_app_id: str = Field(title="Slack app ID")
 
+    consumer_group_id: str = Field(
+        "unfurlbot", title="Kafka consumer group ID"
+    )
+
     app_mention_topic: str = Field(
         "squarebot.app_mention",
         title="app_mention Kafka topic",

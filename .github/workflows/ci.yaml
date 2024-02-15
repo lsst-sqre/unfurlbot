@@ -45,11 +45,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Start Kafka
+        run: docker compose -f kafka-compose.yaml up -d
+
       - name: Run tox
         uses: lsst-sqre/run-tox@v1
         with:
           python-version: ${{ matrix.python }}
           tox-envs: "py,coverage-report,typing"
+
+      - name: Stop Kafka
+        run: docker compose -f kafka-compose.yaml down
 
   build:
     runs-on: ubuntu-latest

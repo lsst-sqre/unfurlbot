@@ -10,7 +10,7 @@ annotated-types==0.6.0
     # via
     #   -c requirements/main.txt
     #   pydantic
-anyio==4.2.0
+anyio==4.3.0
     # via
     #   -c requirements/main.txt
     #   httpx
@@ -43,13 +43,13 @@ click==8.1.7
     #   scriv
 click-log==0.4.0
     # via scriv
-coverage[toml]==7.4.1
+coverage[toml]==7.4.2
     # via
     #   -r requirements/dev.in
     #   pytest-cov
 distlib==0.3.8
     # via virtualenv
-documenteer[guide]==1.1.0
+documenteer[guide]==1.1.1
     # via -r requirements/dev.in
 docutils==0.20.1
     # via
@@ -65,21 +65,21 @@ filelock==3.13.1
     # via virtualenv
 gitdb==4.0.11
     # via gitpython
-gitpython==3.1.41
+gitpython==3.1.42
     # via documenteer
 h11==0.14.0
     # via
     #   -c requirements/main.txt
     #   httpcore
-httpcore==1.0.3
+httpcore==1.0.4
     # via
     #   -c requirements/main.txt
     #   httpx
-httpx==0.26.0
+httpx==0.27.0
     # via
     #   -c requirements/main.txt
     #   -r requirements/dev.in
-identify==2.5.34
+identify==2.5.35
     # via pre-commit
 idna==3.6
     # via
@@ -136,7 +136,7 @@ platformdirs==4.2.0
     # via virtualenv
 pluggy==1.4.0
     # via pytest
-pre-commit==3.6.1
+pre-commit==3.6.2
     # via -r requirements/dev.in
 pybtex==0.24.0
     # via
@@ -162,7 +162,7 @@ pygments==2.17.2
     #   sphinx-prompt
 pylatexenc==2.10
     # via documenteer
-pytest==8.0.0
+pytest==8.0.1
     # via
     #   -r requirements/dev.in
     #   pytest-asyncio
@@ -192,7 +192,7 @@ rpds-py==0.18.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.2.1
+ruff==0.2.2
     # via -r requirements/dev.in
 scriv==1.5.1
     # via -r requirements/dev.in
@@ -231,7 +231,7 @@ sphinx==7.2.6
     #   sphinxext-rediraffe
 sphinx-autodoc-typehints==2.0.0
     # via documenteer
-sphinx-automodapi==0.16.0
+sphinx-automodapi==0.17.0
     # via documenteer
 sphinx-copybutton==0.5.2
     # via documenteer
@@ -275,13 +275,15 @@ typing-extensions==4.9.0
     #   pydantic-core
 uc-micro-py==1.0.3
     # via linkify-it-py
-urllib3==2.2.0
+urllib3==2.2.1
     # via
     #   documenteer
     #   requests
-virtualenv==20.25.0
+virtualenv==20.25.1
     # via pre-commit
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==69.1.0
-    # via nodeenv
+    # via
+    #   documenteer
+    #   nodeenv

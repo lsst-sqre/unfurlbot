@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import Depends
-from faststream.kafka.fastapi import KafkaMessage, KafkaRouter
+from faststream.kafka.fastapi import KafkaRouter
 from faststream.security import BaseSecurity
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
 from structlog import get_logger
@@ -36,17 +36,9 @@ kafka_router = KafkaRouter(
 )
 async def handle_slack_message(
     message: SquarebotSlackMessageValue,
-    msg: KafkaMessage,
     ctx: Annotated[ConsumerContext, Depends(consumer_context_dependency)],
 ) -> None:
     """Handle a Slack message."""
-    record = msg.raw_message
-    kafka_context = {
-        "topic": record.topic,
-        "offset": record.offset,
-        "partition": record.partition,
-    }
-    ctx.rebind_logger(kafka=kafka_context)
     logger = ctx.logger
 
     logger.info(

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from faststream.kafka.fastapi import KafkaMessage
 from structlog import get_logger
 from structlog.stdlib import BoundLogger
 
@@ -45,9 +46,18 @@ class ConsumerContextDependency:
     def __init__(self) -> None:
         self._process_context: ProcessContext | None = None
 
-    async def __call__(self) -> ConsumerContext:
+    async def __call__(self, message: KafkaMessage) -> ConsumerContext:
         """Create a per-request context and return it."""
         logger = get_logger(__name__)  # eventually use a logger dependency
+
+        record = message.raw_message
+        kafka_context = {
+            "topic": record.topic,
+            "offset": record.offset,
+            "partition": record.partition,
+        }
+        logger.bind(kafka=kafka_context)
+
         return ConsumerContext(
             logger=logger,
             factory=Factory(

@@ -18,6 +18,7 @@ from safir.middleware.x_forwarded import XForwardedMiddleware
 from structlog import get_logger
 
 from .config import config
+from .dependencies.consumercontext import consumer_context_dependency
 from .handlers.internal import internal_router
 from .handlers.kafka import kafka_router
 
@@ -30,12 +31,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Any code here will be run when the application starts up.
     logger = get_logger(__name__)
 
+    await consumer_context_dependency.initialize()
+
     async with kafka_router.lifespan_context(app):
         logger.info("Unfurlbot start up complete.")
         yield
 
     # Any code here will be run when the application shuts down.
     await http_client_dependency.aclose()
+    await consumer_context_dependency.aclose()
 
 
 configure_logging(

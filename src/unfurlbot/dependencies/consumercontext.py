@@ -5,6 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from aiokafka import ConsumerRecord
+from faststream import context
+from faststream.kafka.fastapi import KafkaMessage
 from structlog import get_logger
 from structlog.stdlib import BoundLogger
 
@@ -20,6 +23,9 @@ class ConsumerContext:
 
     factory: Factory
     """Factory for creating services."""
+
+    record: ConsumerRecord | None = None
+    """The Kafka record being processed."""
 
     def rebind_logger(self, **values: Any) -> None:
         """Add the given values to the logging context.
@@ -45,11 +51,21 @@ class ConsumerContextDependency:
     def __init__(self) -> None:
         self._process_context: ProcessContext | None = None
 
-    async def __call__(
-        self,
-    ) -> ConsumerContext:
+    async def __call__(self) -> ConsumerContext:
         """Create a per-request context and return it."""
+        # Get the message from the FastStream context
+        message: KafkaMessage = context.get_local("message")
+        record = message.raw_message
+
+        # Add the Kafka context to the logger
         logger = get_logger(__name__)  # eventually use a logger dependency
+        kafka_context = {
+            "topic": record.topic,
+            "offset": record.offset,
+            "partition": record.partition,
+        }
+        logger = logger.bind(kafka=kafka_context)
+
         return ConsumerContext(
             logger=logger,
             factory=Factory(

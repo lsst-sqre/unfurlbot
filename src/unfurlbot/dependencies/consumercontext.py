@@ -45,14 +45,9 @@ class ConsumerContextDependency:
     def __init__(self) -> None:
         self._process_context: ProcessContext | None = None
 
-    async def __call__(
-        self,
-        *args: Any,
-        **kwargs: Any,
-    ) -> ConsumerContext:
+    async def __call__(self) -> ConsumerContext:
         """Create a per-request context and return it."""
         logger = get_logger(__name__)  # eventually use a logger dependency
-        logger.info("Creating consumer context", args=args, kwargs=kwargs)
         return ConsumerContext(
             logger=logger,
             factory=Factory(

@@ -7,6 +7,7 @@ import re
 from httpx import AsyncClient
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
 
+from ..config import config
 from .domainbase import DomainUnfurler
 
 
@@ -15,7 +16,7 @@ class JiraUnfurler(DomainUnfurler):
 
     def __init__(self, http_client: AsyncClient) -> None:
         super().__init__(http_client)
-        self._jira_host = "https://jira.lsstcorp.org"
+        self._jira_host = config.jira_url
 
     async def process_slack(self, message: SquarebotSlackMessageValue) -> None:
         """Process a Slack message and unfurl it if appropriate."""

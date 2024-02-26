@@ -6,7 +6,7 @@ import ssl
 from enum import Enum
 from pathlib import Path
 
-from pydantic import DirectoryPath, Field, FilePath, SecretStr
+from pydantic import DirectoryPath, Field, FilePath, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 
@@ -215,6 +215,15 @@ class Config(BaseSettings):
 
     slack_app_id: str = Field(title="Slack app ID")
 
+    jira_url: str = Field(
+        "https://jira.lsstcorp.org",
+        title="Jira URL",
+        examples=[
+            "https://jira.lsstcorp.org",
+            "https://rubinobs.atlassian.net/jira.",
+        ],
+    )
+
     consumer_group_id: str = Field(
         "unfurlbot", title="Kafka consumer group ID"
     )
@@ -276,6 +285,12 @@ class Config(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="UNFURLBOT_", case_sensitive=False
     )
+
+    @field_validator("jira_url")
+    @classmethod
+    def ensure_no_trailing_slash(cls, value: str) -> str:
+        """Ensure that the Jira URL does not have a trailing slash."""
+        return value.rstrip("/")
 
 
 config = Config()

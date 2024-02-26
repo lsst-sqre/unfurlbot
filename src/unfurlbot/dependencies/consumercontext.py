@@ -47,9 +47,12 @@ class ConsumerContextDependency:
 
     async def __call__(
         self,
+        *args: Any,
+        **kwargs: Any,
     ) -> ConsumerContext:
         """Create a per-request context and return it."""
         logger = get_logger(__name__)  # eventually use a logger dependency
+        logger.info("Creating consumer context", args=args, kwargs=kwargs)
         return ConsumerContext(
             logger=logger,
             factory=Factory(

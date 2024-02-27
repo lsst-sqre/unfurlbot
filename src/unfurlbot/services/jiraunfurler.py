@@ -6,9 +6,16 @@ import re
 
 from httpx import AsyncClient
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
+from structlog.stdlib import BoundLogger
 
 from ..config import config
-from ..storage.jiraissues import JiraIssueClient
+from ..storage.jiraissues import JiraIssueClient, JiraIssueSummary
+from ..storage.slackmessage import (
+    SlackBlockKitMessage,
+    SlackContextBlock,
+    SlackTextObject,
+    SlackTextSectionBlock,
+)
 from .domainbase import DomainUnfurler
 
 
@@ -16,15 +23,19 @@ class JiraUnfurler(DomainUnfurler):
     """Unfurl Jira issue handles."""
 
     def __init__(
-        self, jira_client: JiraIssueClient, http_client: AsyncClient
+        self,
+        jira_client: JiraIssueClient,
+        http_client: AsyncClient,
+        logger: BoundLogger,
     ) -> None:
-        super().__init__(http_client)
+        super().__init__(http_client=http_client, logger=logger)
         self._jira_client = jira_client
         self._jira_host = config.jira_root_url
 
     async def process_slack(self, message: SquarebotSlackMessageValue) -> None:
         """Process a Slack message and unfurl it if appropriate."""
         issue_keys = await self.extract_issues(message.text)
+        # Consider making this async
         for issue_key in issue_keys:
             await self.unfurl_issue(message, issue_key)
 
@@ -34,7 +45,14 @@ class JiraUnfurler(DomainUnfurler):
         """Reply to a message with info about a Jira issue."""
         # - Check with the redis cache to see if we've already unfurled this
         # - Fetch the issue from the Jira API
-        # - Create and send a Slack reply
+
+        issue = await self._jira_client.get_issue(issue_key)
+
+        # Create and send a Slack reply
+        reply_message = self.format_slack_message(
+            issue=issue, channel=message.channel, thread_ts=message.thread_ts
+        )
+        await self.send_reply(reply_message)
 
     async def extract_issues(self, text: str) -> list[str]:
         """Extract issue keys from a Slack message."""
@@ -111,3 +129,28 @@ class JiraUnfurler(DomainUnfurler):
             "SITCOM",
             "BLOCK",
         ]
+
+    def format_slack_message(
+        self, *, issue: JiraIssueSummary, channel: str, thread_ts: str | None
+    ) -> SlackBlockKitMessage:
+        """Format a Slack message describing the Jira issue."""
+        main_block = SlackTextSectionBlock(
+            text=(
+                f"*[{issue.key}]({issue.homepage})* "
+                f"({issue.status_label}) {issue.summary}"
+            ),
+            fields=[],
+        )
+
+        assignee = issue.assignee_name or "Unassigned"
+        # Consider using a natural language date formatter
+        created_date = issue.date_created.strftime("%Y-%m-%d")
+        context_block = SlackContextBlock(
+            elements=[SlackTextObject(text=f"{assignee} | {created_date}")]
+        )
+        return SlackBlockKitMessage(
+            text=f"{issue.key} ({issue.status_label}) {issue.summary}",
+            blocks=[main_block, context_block],
+            channel=channel,
+            thread_ts=thread_ts,
+        )

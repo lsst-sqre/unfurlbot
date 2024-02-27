@@ -64,6 +64,7 @@ class Factory:
         return JiraUnfurler(
             jira_client=self.get_jira_client(),
             http_client=self._process_context.http_client,
+            logger=self._logger,
         )
 
     def get_jira_client(self) -> JiraIssueClient:

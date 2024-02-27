@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 from httpx import AsyncClient
+from structlog import get_logger
 
 from unfurlbot.services.jiraunfurler import JiraUnfurler
 from unfurlbot.storage.jiraissues import JiraIssueClient
@@ -20,6 +21,7 @@ async def test_key_extraction() -> None:
             token="gt-123",
         ),
         http_client=http_client,
+        logger=get_logger("unfurlbot"),
     )
     text = "DM-1234 DM-5678\nRFC-1"
     keys = await jira_unfurler.extract_issues(text)

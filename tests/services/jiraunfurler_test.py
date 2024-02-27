@@ -6,13 +6,21 @@ import pytest
 from httpx import AsyncClient
 
 from unfurlbot.services.jiraunfurler import JiraUnfurler
+from unfurlbot.storage.jiraissues import JiraIssueClient
 
 
 @pytest.mark.asyncio
 async def test_key_extraction() -> None:
     """Test that issue keys are extracted from Slack messages."""
     http_client = AsyncClient()
-    jira_unfurler = JiraUnfurler(http_client)
+    jira_unfurler = JiraUnfurler(
+        jira_client=JiraIssueClient(
+            proxy_url="https://example.com/jira-data-proxy",
+            http_client=http_client,
+            token="gt-123",
+        ),
+        http_client=http_client,
+    )
     text = "DM-1234 DM-5678\nRFC-1"
     keys = await jira_unfurler.extract_issues(text)
     assert keys == ["DM-1234", "DM-5678", "RFC-1"]

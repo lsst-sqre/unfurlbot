@@ -6,7 +6,10 @@ from typing import Self
 from httpx import AsyncClient
 from structlog.stdlib import BoundLogger
 
+from .config import config
+from .services.jiraunfurler import JiraUnfurler
 from .services.slackunfurler import SlackUnfurlService
+from .storage.jiraissues import JiraIssueClient
 
 __all__ = ["Factory", "ProcessContext"]
 
@@ -54,4 +57,19 @@ class Factory:
 
     def get_slack_unfurler(self) -> SlackUnfurlService:
         """Get a Slack unfurler."""
-        return SlackUnfurlService()
+        return SlackUnfurlService([self.get_jira_domain_unfurler()])
+
+    def get_jira_domain_unfurler(self) -> JiraUnfurler:
+        """Get a Jira unfurler."""
+        return JiraUnfurler(
+            jira_client=self.get_jira_client(),
+            http_client=self._process_context.http_client,
+        )
+
+    def get_jira_client(self) -> JiraIssueClient:
+        """Get a Jira client."""
+        return JiraIssueClient(
+            proxy_url=config.jira_proxy_url,
+            http_client=self._process_context.http_client,
+            token=config.gafaelfawr_token.get_secret_value(),
+        )

@@ -215,13 +215,32 @@ class Config(BaseSettings):
 
     slack_app_id: str = Field(title="Slack app ID")
 
-    jira_url: str = Field(
-        "https://jira.lsstcorp.org",
-        title="Jira URL",
+    jira_proxy_url: str = Field(
+        "https://roundtable.lsst.cloud/jira-data-proxy",
+        title="Jira Data Proxy URL",
         examples=[
-            "https://jira.lsstcorp.org",
-            "https://rubinobs.atlassian.net/jira.",
+            "https://roundtable.lsst.cloud/jira-data-proxy",
+            "https://roundtable-dev.lsst.cloud/jira-data-proxy",
         ],
+    )
+
+    jira_root_url: str = Field(
+        "https://jira.lsstcorp.org",
+        title="Jira root URL",
+        examples=["https://jira.lsstcorp.org"],
+        description=(
+            "The root URL for the Jira instance for detecting Jira links."
+        ),
+    )
+
+    gafaelfawr_token: SecretStr = Field(
+        ...,
+        title="Gafaelfawr token",
+        description=(
+            "The token to use for authenticating with Gafaelfawr to access "
+            "the Jira Data Proxy."
+        ),
+        examples=["gt-1234567890abcdef"],
     )
 
     consumer_group_id: str = Field(
@@ -286,10 +305,10 @@ class Config(BaseSettings):
         env_prefix="UNFURLBOT_", case_sensitive=False
     )
 
-    @field_validator("jira_url")
+    @field_validator("jira_proxy_url", "jira_root_url")
     @classmethod
     def ensure_no_trailing_slash(cls, value: str) -> str:
-        """Ensure that the Jira URL does not have a trailing slash."""
+        """Ensure that the Jira Proxy URL does not have a trailing slash."""
         return value.rstrip("/")
 
 

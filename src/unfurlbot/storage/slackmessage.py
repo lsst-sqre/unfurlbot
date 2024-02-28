@@ -33,8 +33,7 @@ class SlackTextObject(BaseModel):
 
     def to_slack(self, max_length: int = 3000) -> dict[str, Any]:
         """Convert to a text object in the Slack message payload."""
-        truncated_text = _format_and_truncate_at_end(self.text, max_length)
-        data: dict[str, Any] = {"type": self.type, "text": truncated_text}
+        data: dict[str, Any] = {"type": self.type, "text": self.text}
         if self.type == "mrkdwn":
             data["verbatim"] = self.verbatim
         return data

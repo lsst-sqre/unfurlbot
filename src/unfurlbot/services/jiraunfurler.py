@@ -143,10 +143,7 @@ class JiraUnfurler(DomainUnfurler):
     ) -> SlackBlockKitMessage:
         """Format a Slack message describing the Jira issue."""
         main_block = SlackTextSectionBlock(
-            text=(
-                f"<{issue.homepage}|*{issue.key}*> "
-                f"({issue.status_label}) {issue.summary}"
-            ),
+            text=(f"<{issue.homepage}|*{issue.key}*> {issue.summary}"),
             fields=[],
         )
 

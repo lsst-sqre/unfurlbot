@@ -141,26 +141,37 @@ class JiraUnfurler(DomainUnfurler):
         thread_ts: str | None = None,
     ) -> SlackBlockKitMessage:
         """Format a Slack message describing the Jira issue."""
+        fallback_text = f"{issue.key} ({issue.status_label}) {issue.summary}"
+
         main_block = SlackTextSectionBlock(
             text=(f"> <{issue.homepage}|*{issue.key}*> {issue.summary}"),
             fields=[],
         )
 
         assignee = issue.assignee_name or "Unassigned"
-        # Consider using a natural language date formatter
-        created_date = issue.date_created.strftime("%Y-%m-%d")
+
+        if issue.date_resolved:
+            ts = int(issue.date_resolved.timestamp())
+            ts_label = "Resolved"
+            date_fallback = issue.date_resolved.strftime("%Y-%m-%d")
+        else:
+            ts = int(issue.date_created.timestamp())
+            ts_label = "Created"
+            date_fallback = issue.date_created.strftime("%Y-%m-%d")
+        date_text = (
+            f"<!date^{ts}^{ts_label} {{date_pretty}} {{time}}"
+            f"|{ts_label} {date_fallback}>"
+        )
+
         context_block = SlackContextBlock(
             elements=[
                 SlackTextObject(
-                    text=(
-                        f"{assignee} | {issue.status_label} | "
-                        f"Created {created_date}"
-                    )
+                    text=f"{assignee} | {issue.status_label} | {date_text}"
                 )
             ]
         )
         return SlackBlockKitMessage(
-            text=f"{issue.key} ({issue.status_label}) {issue.summary}",
+            text=fallback_text,
             blocks=[main_block, context_block],
             channel=channel,
             thread_ts=thread_ts,

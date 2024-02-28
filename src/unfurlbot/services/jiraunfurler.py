@@ -49,8 +49,9 @@ class JiraUnfurler(DomainUnfurler):
         issue = await self._jira_client.get_issue(issue_key)
 
         # Create and send a Slack reply
+        # Re-add support for thread_ts when rubin-squarebot is released
         reply_message = self.format_slack_message(
-            issue=issue, channel=message.channel, thread_ts=message.thread_ts
+            issue=issue, channel=message.channel, thread_ts=None
         )
         await self.send_reply(reply_message)
 
@@ -131,7 +132,11 @@ class JiraUnfurler(DomainUnfurler):
         ]
 
     def format_slack_message(
-        self, *, issue: JiraIssueSummary, channel: str, thread_ts: str | None
+        self,
+        *,
+        issue: JiraIssueSummary,
+        channel: str,
+        thread_ts: str | None = None,
     ) -> SlackBlockKitMessage:
         """Format a Slack message describing the Jira issue."""
         main_block = SlackTextSectionBlock(

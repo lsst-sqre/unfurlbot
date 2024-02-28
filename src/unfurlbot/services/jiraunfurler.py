@@ -53,7 +53,10 @@ class JiraUnfurler(DomainUnfurler):
         reply_message = self.format_slack_message(
             issue=issue, channel=message.channel, thread_ts=None
         )
-        await self.send_reply(reply_message)
+        self._logger.debug(
+            "Formatted Jira unfurl", reply_message=reply_message.to_slack()
+        )
+        # await self.send_reply(reply_message)  # noqa: ERA001
 
     async def extract_issues(self, text: str) -> list[str]:
         """Extract issue keys from a Slack message."""

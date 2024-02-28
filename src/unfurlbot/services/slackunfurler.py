@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import json
-
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
 from structlog.stdlib import BoundLogger
 
@@ -25,10 +23,7 @@ class SlackUnfurlService:
     ) -> None:
         """Process a message, sending it to unfurl handlers."""
         # Ignore messages from bots
-        # Get bot_id from parsed message when rubin-squarebot is released
-        original_message = json.loads(message.slack_event)
-        message_event = original_message["event"]
-        if "bot_id" in message_event and message_event["bot_id"] is not None:
+        if message.bot_id is not None:
             self._logger.debug("Ignoring message from bot")
             return
 

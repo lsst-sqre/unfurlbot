@@ -144,7 +144,7 @@ class JiraUnfurler(DomainUnfurler):
         """Format a Slack message describing the Jira issue."""
         main_block = SlackTextSectionBlock(
             text=(
-                f"*[{issue.key}]({issue.homepage})* "
+                f"<{issue.homepage}|*{issue.key}*> "
                 f"({issue.status_label}) {issue.summary}"
             ),
             fields=[],
@@ -154,7 +154,14 @@ class JiraUnfurler(DomainUnfurler):
         # Consider using a natural language date formatter
         created_date = issue.date_created.strftime("%Y-%m-%d")
         context_block = SlackContextBlock(
-            elements=[SlackTextObject(text=f"{assignee} | {created_date}")]
+            elements=[
+                SlackTextObject(
+                    text=(
+                        f"{assignee} | {issue.status_label} | "
+                        f"Created {created_date}"
+                    )
+                )
+            ]
         )
         return SlackBlockKitMessage(
             text=f"{issue.key} ({issue.status_label}) {issue.summary}",

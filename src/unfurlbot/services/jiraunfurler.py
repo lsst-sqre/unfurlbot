@@ -51,7 +51,7 @@ class JiraUnfurler(DomainUnfurler):
         # Create and send a Slack reply
         # Re-add support for thread_ts when rubin-squarebot is released
         reply_message = self.format_slack_message(
-            issue=issue, channel=message.channel, thread_ts=None
+            issue=issue, channel=message.channel, thread_ts=message.thread_ts
         )
         self._logger.debug(
             "Formatted Jira unfurl", reply_message=reply_message.to_slack()

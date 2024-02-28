@@ -206,6 +206,12 @@ class Config(BaseSettings):
         LogLevel.INFO, title="Log level of the application's logger"
     )
 
+    environment_url: str = Field(
+        ...,
+        title="Environment URL",
+        examples=["https://roundtable.lsst.cloud"],
+    )
+
     kafka: KafkaConnectionSettings = Field(
         default_factory=KafkaConnectionSettings,
         title="Kafka connection configuration.",
@@ -215,12 +221,14 @@ class Config(BaseSettings):
 
     slack_app_id: str = Field(title="Slack app ID")
 
-    jira_proxy_url: str = Field(
-        "https://roundtable.lsst.cloud/jira-data-proxy",
-        title="Jira Data Proxy URL",
+    jira_proxy_path: str = Field(
+        "/jira-data-proxy",
+        title="Jira Data Proxy URL path",
+        description=(
+            "The URL path to the Jira Data Proxy within the environment."
+        ),
         examples=[
-            "https://roundtable.lsst.cloud/jira-data-proxy",
-            "https://roundtable-dev.lsst.cloud/jira-data-proxy",
+            "/jira-data-proxy",
         ],
     )
 
@@ -305,10 +313,17 @@ class Config(BaseSettings):
         env_prefix="UNFURLBOT_", case_sensitive=False
     )
 
-    @field_validator("jira_proxy_url", "jira_root_url")
+    @property
+    def jira_proxy_url(self) -> str:
+        """The URL to the Jira Data Proxy."""
+        env_url = self.environment_url.rstrip("/")
+        proxy_path = self.jira_proxy_path.lstrip("/")
+        return f"{env_url}/{proxy_path}"
+
+    @field_validator("jira_root_url")
     @classmethod
     def ensure_no_trailing_slash(cls, value: str) -> str:
-        """Ensure that the Jira Proxy URL does not have a trailing slash."""
+        """Ensure that the Jira url does not have a trailing slash."""
         return value.rstrip("/")
 
 

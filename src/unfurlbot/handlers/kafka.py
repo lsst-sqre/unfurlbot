@@ -41,7 +41,11 @@ async def handle_slack_message(
     """Handle a Slack message."""
     logger = context.logger
 
-    logger.info(
+    logger.debug(
         "Slack message text",
         text=message.text,
     )
+
+    factory = context.factory
+    unfurl_service = factory.get_slack_unfurler()
+    await unfurl_service.process_message(message)

@@ -57,7 +57,10 @@ class Factory:
 
     def get_slack_unfurler(self) -> SlackUnfurlService:
         """Get a Slack unfurler."""
-        return SlackUnfurlService([self.get_jira_domain_unfurler()])
+        return SlackUnfurlService(
+            unfurlers=[self.get_jira_domain_unfurler()],
+            logger=self._logger,
+        )
 
     def get_jira_domain_unfurler(self) -> JiraUnfurler:
         """Get a Jira unfurler."""

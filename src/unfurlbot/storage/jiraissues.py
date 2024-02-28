@@ -55,7 +55,7 @@ class JiraIssueClient:
 
     async def get_issue(self, issue_key: str) -> JiraIssueSummary:
         """Get a Jira issue."""
-        path = f"/rest/api/v2/issue/{issue_key}"
+        path = f"/rest/api/2/issue/{issue_key}"
         data = await self.get(path)
         return JiraIssueSummary.from_json(data)
 

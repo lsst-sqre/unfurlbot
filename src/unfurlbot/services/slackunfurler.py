@@ -29,7 +29,7 @@ class SlackUnfurlService:
         original_message = json.loads(message.slack_event)
         message_event = original_message["event"]
         if "bot_id" in message_event and message_event["bot_id"] is not None:
-            self._logger.info("Ignoring message from bot")
+            self._logger.debug("Ignoring message from bot")
             return
 
         for unfurler in self._domain_unfurlers:

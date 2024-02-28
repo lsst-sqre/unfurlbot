@@ -44,8 +44,8 @@ class JiraUnfurler(DomainUnfurler):
     ) -> None:
         """Reply to a message with info about a Jira issue."""
         # - Check with the redis cache to see if we've already unfurled this
-        # - Fetch the issue from the Jira API
 
+        # - Fetch the issue from the Jira API
         issue = await self._jira_client.get_issue(issue_key)
 
         # Create and send a Slack reply
@@ -77,7 +77,6 @@ class JiraUnfurler(DomainUnfurler):
 
         projects = await self.get_projects()
         key_pattern = rf"((?:{'|'.join(projects)})-\d+)"
-        # key_pattern = r"((?:DM|RFC)-\d+)"  # noqa: ERA001
         matches = re.findall(key_pattern, text)
         return [str(m) for m in matches]
 

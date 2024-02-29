@@ -52,6 +52,11 @@ class Factory:
 
         This is typically used by the ConsumerContext when values are bound
         to the logger.
+
+        Parameters
+        ----------
+        logger
+            The new logger to use.
         """
         self._logger = logger
 

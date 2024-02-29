@@ -52,7 +52,7 @@ class ConsumerContextDependency:
         self._process_context: ProcessContext | None = None
 
     async def __call__(self) -> ConsumerContext:
-        """Create a per-request context and return it."""
+        """Create a per-request context."""
         # Get the message from the FastStream context
         message: KafkaMessage = context.get_local("message")
         record = message.raw_message
@@ -81,13 +81,7 @@ class ConsumerContextDependency:
         return self._process_context
 
     async def initialize(self) -> None:
-        """Initialize the process-wide shared context.
-
-        Parameters
-        ----------
-        config
-            Gafaelfawr configuration.
-        """
+        """Initialize the process-wide shared context."""
         if self._process_context:
             await self._process_context.aclose()
         self._process_context = await ProcessContext.create()

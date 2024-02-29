@@ -241,6 +241,15 @@ class Config(BaseSettings):
         ),
     )
 
+    jira_projects: str = Field(
+        "DM,RFC",
+        title="Jira issue keys",
+        description=(
+            "A comma-separated list of Jira issue keys to recognize in "
+            "messages."
+        ),
+    )
+
     gafaelfawr_token: SecretStr = Field(
         ...,
         title="Gafaelfawr token",
@@ -319,6 +328,11 @@ class Config(BaseSettings):
         env_url = self.environment_url.rstrip("/")
         proxy_path = self.jira_proxy_path.lstrip("/")
         return f"{env_url}/{proxy_path}"
+
+    @property
+    def parsed_jira_projects(self) -> list[str]:
+        """The Jira projects to recognize."""
+        return list({p.strip() for p in self.jira_projects.split(",")})
 
     @field_validator("jira_root_url")
     @classmethod

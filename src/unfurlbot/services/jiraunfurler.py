@@ -114,56 +114,9 @@ class JiraUnfurler(DomainUnfurler):
 
     async def get_projects(self) -> list[str]:
         """Get a list of Jira projects."""
-        # This is a shim for either external configuration or an API-driven
-        # approach to getting the list of projects in the Rubin Slack.
-        return [
-            "ADMIN",
-            "CCB",
-            "CAP",
-            "COMCAM",
-            "COMT",
-            "DM",
-            "EPO",
-            "FRACAS",
-            "IAM",
-            "IHS",
-            "IT",
-            "ITRFC",
-            "LOVE",
-            "LASD",
-            "LIT",
-            "LOPS",
-            "LVV",
-            "M1M3V",
-            "OPSIM",
-            "PHOSIM",
-            "PST",
-            "PSV",
-            "PUB",
-            "RFC",
-            "RM",
-            "SAFE",
-            "SIM",
-            "SPP",
-            "SBTT",
-            "SE",
-            "TSAIV",
-            "TCT",
-            "SECMVERIF",
-            "TMDC",
-            "TPC",
-            "TSEIA",
-            "TAS",
-            "TELV",
-            "TSSAL",
-            "TSS",
-            "TSSPP",
-            "WMP",
-            "PREOPS",
-            "OBS",
-            "SITCOM",
-            "BLOCK",
-        ]
+        # This is a shim for an API-driven approach to getting the list of
+        # projects in the Rubin Jira.
+        return config.parsed_jira_projects
 
     def format_slack_message(
         self,

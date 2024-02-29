@@ -15,10 +15,12 @@ from fastapi import FastAPI
 from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging, configure_uvicorn_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
+from structlog import get_logger
 
 from .config import config
-from .handlers.external import external_router
+from .dependencies.consumercontext import consumer_context_dependency
 from .handlers.internal import internal_router
+from .handlers.kafka import kafka_router
 
 __all__ = ["app", "config"]
 
@@ -27,11 +29,17 @@ __all__ = ["app", "config"]
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Set up and tear down the application."""
     # Any code here will be run when the application starts up.
+    logger = get_logger(__name__)
 
-    yield
+    await consumer_context_dependency.initialize()
+
+    async with kafka_router.lifespan_context(app):
+        logger.info("Unfurlbot start up complete.")
+        yield
 
     # Any code here will be run when the application shuts down.
     await http_client_dependency.aclose()
+    await consumer_context_dependency.aclose()
 
 
 configure_logging(
@@ -54,7 +62,7 @@ app = FastAPI(
 
 # Attach the routers.
 app.include_router(internal_router)
-app.include_router(external_router, prefix=f"{config.path_prefix}")
+app.include_router(kafka_router)
 
 # Add middleware.
 app.add_middleware(XForwardedMiddleware)

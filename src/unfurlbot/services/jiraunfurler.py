@@ -78,7 +78,7 @@ class JiraUnfurler(DomainUnfurler):
         projects = await self.get_projects()
         key_pattern = rf"((?:{'|'.join(projects)})-\d+)"
         matches = re.findall(key_pattern, text)
-        return [str(m) for m in matches]
+        return list({str(m) for m in matches})  # Deduplicate the matches
 
     async def get_projects(self) -> list[str]:
         """Get a list of Jira projects."""

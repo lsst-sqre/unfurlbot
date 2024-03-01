@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Self
 
 from httpx import AsyncClient
+from redis.asyncio import Redis
 from structlog.stdlib import BoundLogger
 
 from .config import config
@@ -23,15 +24,22 @@ class ProcessContext:
     http_client: AsyncClient
     """Shared HTTP client."""
 
+    redis: Redis
+    """Shared Redis client."""
+
     @classmethod
     async def create(cls) -> Self:
         """Create a new process context."""
         http_client = AsyncClient()
+        redis = Redis.from_url(str(config.redis_url))
 
-        return cls(http_client=http_client)
+        return cls(http_client=http_client, redis=redis)
 
     async def aclose(self) -> None:
         """Close any resources held by the context."""
+        await self.redis.close()
+        await self.redis.connection_pool.disconnect()
+
         await self.http_client.aclose()
 
 

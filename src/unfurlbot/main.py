@@ -12,7 +12,6 @@ from contextlib import asynccontextmanager
 from importlib.metadata import metadata, version
 
 from fastapi import FastAPI
-from safir.dependencies.http_client import http_client_dependency
 from safir.logging import configure_logging, configure_uvicorn_logging
 from safir.middleware.x_forwarded import XForwardedMiddleware
 from structlog import get_logger
@@ -38,7 +37,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
 
     # Any code here will be run when the application shuts down.
-    await http_client_dependency.aclose()
     await consumer_context_dependency.aclose()
 
 

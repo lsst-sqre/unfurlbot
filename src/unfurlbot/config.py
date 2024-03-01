@@ -235,6 +235,14 @@ class Config(BaseSettings):
 
     slack_app_id: str = Field(title="Slack app ID")
 
+    slack_debounce_time: int = Field(
+        5 * 60,
+        description=(
+            "The number of seconds before the same token can be unfurled to "
+            "the same Slack channel."
+        ),
+    )
+
     jira_proxy_path: str = Field(
         "/jira-data-proxy",
         title="Jira Data Proxy URL path",

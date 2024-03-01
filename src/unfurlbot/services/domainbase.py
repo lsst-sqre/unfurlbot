@@ -10,16 +10,22 @@ from structlog.stdlib import BoundLogger
 
 from ..config import config
 from ..storage.slackmessage import SlackBlockKitMessage
+from ..storage.unfurleventstore import SlackUnfurlEventStore
 
 
 class DomainUnfurler(ABC):
     """Base class for domain unfurlers."""
 
     def __init__(
-        self, *, http_client: AsyncClient, logger: BoundLogger
+        self,
+        *,
+        http_client: AsyncClient,
+        logger: BoundLogger,
+        unfurl_event_store: SlackUnfurlEventStore,
     ) -> None:
         self._http_client: AsyncClient = http_client
         self._logger: BoundLogger = logger
+        self._unfurl_event_store = unfurl_event_store
 
     @abstractmethod
     async def process_slack(self, message: SquarebotSlackMessageValue) -> None:
@@ -27,8 +33,7 @@ class DomainUnfurler(ABC):
         raise NotImplementedError
 
     async def send_reply(
-        self,
-        message: SlackBlockKitMessage,
+        self, message: SlackBlockKitMessage, token: str
     ) -> None:
         """Send a reply to a Slack message."""
         # https://api.slack.com/methods/chat.postMessage
@@ -52,3 +57,22 @@ class DomainUnfurler(ABC):
                 status_code=r.status_code,
                 reply_message=body.pop("token"),
             )
+
+        # Add the event to the store
+        if message.channel:
+            # for typing; the channel should be present
+            await self._unfurl_event_store.add_event(
+                channel=message.channel,
+                thread_ts=message.thread_ts,
+                token=token,
+            )
+
+    async def is_recently_unfurled(
+        self, message: SquarebotSlackMessageValue, token: str
+    ) -> bool:
+        """Check if a message has been recently unfurled."""
+        return await self._unfurl_event_store.has_event(
+            channel=message.channel,
+            thread_ts=message.thread_ts,
+            token=token,
+        )

@@ -11,6 +11,7 @@ from .config import config
 from .services.jiraunfurler import JiraUnfurler
 from .services.slackunfurler import SlackUnfurlService
 from .storage.jiraissues import JiraIssueClient
+from .storage.unfurleventstore import SlackUnfurlEventStore
 
 __all__ = ["Factory", "ProcessContext"]
 
@@ -79,6 +80,7 @@ class Factory:
         """Get a Jira unfurler."""
         return JiraUnfurler(
             jira_client=self.get_jira_client(),
+            unfurl_event_store=self.get_slack_unfurl_event_store(),
             http_client=self._process_context.http_client,
             logger=self._logger,
         )
@@ -90,3 +92,7 @@ class Factory:
             http_client=self._process_context.http_client,
             token=config.gafaelfawr_token.get_secret_value(),
         )
+
+    def get_slack_unfurl_event_store(self) -> SlackUnfurlEventStore:
+        """Get a Slack unfurl event store."""
+        return SlackUnfurlEventStore(redis=self._process_context.redis)

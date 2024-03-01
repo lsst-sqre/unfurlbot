@@ -16,9 +16,9 @@ class SlackTextObject(BaseModel):
 
     text: Annotated[str, Field(description="The text content of the block.")]
 
-    type: Annotated[
-        str, Field(description="The type of text object.")
-    ] = "mrkdwn"
+    type: Annotated[str, Field(description="The type of text object.")] = (
+        "mrkdwn"
+    )
 
     verbatim: Annotated[
         bool,

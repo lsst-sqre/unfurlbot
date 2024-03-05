@@ -6,7 +6,14 @@ import ssl
 from enum import Enum
 from pathlib import Path
 
-from pydantic import DirectoryPath, Field, FilePath, SecretStr, field_validator
+from pydantic import (
+    DirectoryPath,
+    Field,
+    FilePath,
+    RedisDsn,
+    SecretStr,
+    field_validator,
+)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from safir.logging import LogLevel, Profile
 
@@ -217,9 +224,24 @@ class Config(BaseSettings):
         title="Kafka connection configuration.",
     )
 
+    redis_url: RedisDsn = Field(
+        default_factory=lambda: RedisDsn(
+            "redis://localhost:6379/0",
+        ),
+        description=("URL for the redis instance, used for caching."),
+    )
+
     slack_token: SecretStr = Field(title="Slack bot token")
 
     slack_app_id: str = Field(title="Slack app ID")
+
+    slack_debounce_time: int = Field(
+        5 * 60,
+        description=(
+            "The number of seconds before the same token can be unfurled to "
+            "the same Slack channel."
+        ),
+    )
 
     jira_proxy_path: str = Field(
         "/jira-data-proxy",

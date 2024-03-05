@@ -53,3 +53,12 @@ services:
       KAFKA_BROKERCONNECT: "kafka1:19092"
     depends_on:
       - "kafka1"
+
+  redis:
+    image: bitnami/redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    container_name: redis
+    restart: always

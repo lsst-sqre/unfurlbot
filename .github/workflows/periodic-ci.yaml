@@ -32,12 +32,18 @@ jobs:
           python-version: "3.12"
           mode: update
 
+      - name: Start Kafka
+        run: docker compose -f kafka-compose.yaml up -d
+
       - name: Run tests in tox
         uses: lsst-sqre/run-tox@v1
         with:
           python-version: ${{ matrix.python }}
           tox-envs: "lint,typing,py"
           use-cache: false
+
+      - name: Stop Kafka
+        run: docker compose -f kafka-compose.yaml down
 
       - name: Report status
         if: always()

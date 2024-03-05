@@ -4,12 +4,14 @@ from dataclasses import dataclass
 from typing import Self
 
 from httpx import AsyncClient
+from redis.asyncio import Redis
 from structlog.stdlib import BoundLogger
 
 from .config import config
 from .services.jiraunfurler import JiraUnfurler
 from .services.slackunfurler import SlackUnfurlService
 from .storage.jiraissues import JiraIssueClient
+from .storage.unfurleventstore import SlackUnfurlEventStore
 
 __all__ = ["Factory", "ProcessContext"]
 
@@ -23,15 +25,22 @@ class ProcessContext:
     http_client: AsyncClient
     """Shared HTTP client."""
 
+    redis: Redis
+    """Shared Redis client."""
+
     @classmethod
     async def create(cls) -> Self:
         """Create a new process context."""
         http_client = AsyncClient()
+        redis = Redis.from_url(str(config.redis_url))
 
-        return cls(http_client=http_client)
+        return cls(http_client=http_client, redis=redis)
 
     async def aclose(self) -> None:
         """Close any resources held by the context."""
+        await self.redis.close()
+        await self.redis.connection_pool.disconnect()
+
         await self.http_client.aclose()
 
 
@@ -71,6 +80,7 @@ class Factory:
         """Get a Jira unfurler."""
         return JiraUnfurler(
             jira_client=self.get_jira_client(),
+            unfurl_event_store=self.get_slack_unfurl_event_store(),
             http_client=self._process_context.http_client,
             logger=self._logger,
         )
@@ -82,3 +92,7 @@ class Factory:
             http_client=self._process_context.http_client,
             token=config.gafaelfawr_token.get_secret_value(),
         )
+
+    def get_slack_unfurl_event_store(self) -> SlackUnfurlEventStore:
+        """Get a Slack unfurl event store."""
+        return SlackUnfurlEventStore(redis=self._process_context.redis)

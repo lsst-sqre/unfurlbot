@@ -16,6 +16,7 @@ from ..storage.slackmessage import (
     SlackTextObject,
     SlackTextSectionBlock,
 )
+from ..storage.unfurleventstore import SlackUnfurlEventStore
 from .domainbase import DomainUnfurler
 
 
@@ -24,11 +25,17 @@ class JiraUnfurler(DomainUnfurler):
 
     def __init__(
         self,
+        *,
         jira_client: JiraIssueClient,
         http_client: AsyncClient,
         logger: BoundLogger,
+        unfurl_event_store: SlackUnfurlEventStore,
     ) -> None:
-        super().__init__(http_client=http_client, logger=logger)
+        super().__init__(
+            http_client=http_client,
+            logger=logger,
+            unfurl_event_store=unfurl_event_store,
+        )
         self._jira_client = jira_client
         self._jira_host = config.jira_root_url
 
@@ -44,6 +51,8 @@ class JiraUnfurler(DomainUnfurler):
         issue_keys = await self.extract_issues(message.text)
         # Consider making this async
         for issue_key in issue_keys:
+            if await self.is_recently_unfurled(message, issue_key):
+                continue
             await self.unfurl_issue(message, issue_key)
 
     async def unfurl_issue(
@@ -73,7 +82,7 @@ class JiraUnfurler(DomainUnfurler):
         self._logger.debug(
             "Formatted Jira unfurl", reply_message=reply_message.to_slack()
         )
-        await self.send_reply(reply_message)
+        await self.send_reply(reply_message, token=issue_key)
 
     async def extract_issues(self, text: str) -> list[str]:
         """Extract issue keys from a Slack message.

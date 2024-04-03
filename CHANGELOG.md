@@ -7,6 +7,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.2.1'></a>
+## 0.2.1 (2024-04-03)
+
+### Bug fixes
+
+- Stop using the mrkdwn quote in the main unfurled content because it down't present well in mobile views.
+
 <a id='changelog-0.2.0'></a>
 ## 0.2.0 (2024-03-04)
 

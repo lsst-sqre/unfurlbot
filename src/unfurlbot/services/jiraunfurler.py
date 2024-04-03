@@ -153,7 +153,7 @@ class JiraUnfurler(DomainUnfurler):
 
         # The main section block
         main_block = SlackTextSectionBlock(
-            text=(f"> <{issue.homepage}|*{issue.key}*> {issue.summary}"),
+            text=(f"<{issue.homepage}|*{issue.key}*> {issue.summary}"),
             fields=[],
         )
 

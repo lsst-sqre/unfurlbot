@@ -53,6 +53,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           tox-envs: "py,coverage-report,typing"
+          tox-requirements: requirements/tox.txt
 
       - name: Stop Kafka
         run: docker compose -f kafka-compose.yaml down

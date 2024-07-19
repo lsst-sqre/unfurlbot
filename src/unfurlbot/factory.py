@@ -38,7 +38,7 @@ class ProcessContext:
 
     async def aclose(self) -> None:
         """Close any resources held by the context."""
-        await self.redis.close()
+        await self.redis.aclose()
         await self.redis.connection_pool.disconnect()
 
         await self.http_client.aclose()

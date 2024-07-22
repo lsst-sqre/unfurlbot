@@ -77,7 +77,9 @@ class JiraIssueSummary(BaseModel):
         datetime, Field(description="The date the issue was created.")
     ]
 
-    description: Annotated[str, Field(description="The issue description.")]
+    description: Annotated[
+        str | None, Field(description="The issue description.")
+    ] = None
 
     reporter_name: Annotated[
         str, Field(description="The name of the issue reporter.")

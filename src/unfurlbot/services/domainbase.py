@@ -33,7 +33,9 @@ class DomainUnfurler(ABC):
         raise NotImplementedError
 
     async def send_reply(
-        self, message: SlackBlockKitMessage, token: str
+        self,
+        message: SlackBlockKitMessage,
+        token: str,
     ) -> None:
         """Send a reply to a Slack message."""
         # https://api.slack.com/methods/chat.postMessage
@@ -68,7 +70,9 @@ class DomainUnfurler(ABC):
             )
 
     async def is_recently_unfurled(
-        self, message: SquarebotSlackMessageValue, token: str
+        self,
+        message: SquarebotSlackMessageValue,
+        token: str,
     ) -> bool:
         """Check if a message has been recently unfurled."""
         return await self._unfurl_event_store.has_event(

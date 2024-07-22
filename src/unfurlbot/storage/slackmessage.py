@@ -27,7 +27,7 @@ class SlackTextObject(BaseModel):
                 "Indicates if the text is verbatim. When False, links "
                 "are linkified and mentions parsed. Only applied to "
                 "mrkdwn type."
-            )
+            ),
         ),
     ] = False
 
@@ -121,7 +121,7 @@ class SlackBlockKitMessage(BaseModel):
                 "The message's text. When blocks are used this becomes a "
                 "fallback for notifications. This may be markdown is `mrkdwn` "
                 "is true."
-            )
+            ),
         ),
     ]
 
@@ -135,17 +135,20 @@ class SlackBlockKitMessage(BaseModel):
     ]
 
     mrkdwn: Annotated[
-        bool, Field(description="Indicates if the text is markdown.")
+        bool,
+        Field(description="Indicates if the text is markdown."),
     ] = True
 
     # Used for threading messages
     thread_ts: Annotated[
-        str | None, Field(description="The timestamp of the parent message.")
+        str | None,
+        Field(description="The timestamp of the parent message."),
     ] = None
 
     # Used for sending messages with the web API
     channel: Annotated[
-        str | None, Field(description="The channel to send the message to.")
+        str | None,
+        Field(description="The channel to send the message to."),
     ] = None
 
     def to_slack(self) -> dict[str, Any]:

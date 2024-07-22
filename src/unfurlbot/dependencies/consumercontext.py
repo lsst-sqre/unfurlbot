@@ -69,7 +69,8 @@ class ConsumerContextDependency:
         return ConsumerContext(
             logger=logger,
             factory=Factory(
-                logger=logger, process_context=self.process_context
+                logger=logger,
+                process_context=self.process_context,
             ),
         )
 

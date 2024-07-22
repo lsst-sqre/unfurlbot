@@ -6,7 +6,8 @@ from datetime import datetime
 from typing import Annotated, Any, Self
 
 from httpx import AsyncClient
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from safir.pydantic import normalize_datetime
 
 from ..config import config
 
@@ -70,21 +71,28 @@ class JiraIssueSummary(BaseModel):
     # This is a plain-text label because statuses are site-configurable and
     # new statuses can be added.
     status_label: Annotated[
-        str, Field(description="The label for the issue status.")
+        str,
+        Field(description="The label for the issue status."),
     ]
 
     date_created: Annotated[
-        datetime, Field(description="The date the issue was created.")
+        datetime,
+        Field(description="The date the issue was created."),
     ]
 
-    description: Annotated[str, Field(description="The issue description.")]
+    description: Annotated[
+        str | None,
+        Field(description="The issue description."),
+    ] = None
 
     reporter_name: Annotated[
-        str, Field(description="The name of the issue reporter.")
+        str,
+        Field(description="The name of the issue reporter."),
     ]
 
     homepage: Annotated[
-        str, Field(description="The URL to the issue homepage.")
+        str,
+        Field(description="The URL to the issue homepage."),
     ]
 
     date_resolved: Annotated[
@@ -97,6 +105,12 @@ class JiraIssueSummary(BaseModel):
         Field(description="The name of the issue assignee, if applicable."),
     ] = None
 
+    _normalize_dates = field_validator(
+        "date_created",
+        "date_resolved",
+        mode="before",
+    )(normalize_datetime)
+
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> Self:
         """Create a JiraIssueSummary from JSON data."""
@@ -104,7 +118,7 @@ class JiraIssueSummary(BaseModel):
 
         if data["fields"]["resolutiondate"]:
             date_resolved = datetime.fromisoformat(
-                data["fields"]["resolutiondate"]
+                data["fields"]["resolutiondate"],
             )
         else:
             date_resolved = None

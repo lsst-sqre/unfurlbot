@@ -16,7 +16,8 @@ class SlackUnfurlEventModel(BaseModel):
     """A model for a Slack unfurl event."""
 
     time: Annotated[
-        datetime, Field(description="The time the unfurl happened.")
+        datetime,
+        Field(description="The time the unfurl happened."),
     ]
 
 
@@ -24,7 +25,10 @@ class SlackUnfurlEventKey:
     """A key for a Slack unfurl event."""
 
     def __init__(
-        self, channel: str, token: str, thread_ts: str | None = None
+        self,
+        channel: str,
+        token: str,
+        thread_ts: str | None = None,
     ) -> None:
         self.channel = channel
         self.token = token
@@ -46,10 +50,15 @@ class SlackUnfurlEventStore(PydanticRedisStorage[SlackUnfurlEventModel]):
         super().__init__(redis=redis, datatype=SlackUnfurlEventModel)
 
     async def add_event(
-        self, channel: str, token: str, thread_ts: str | None = None
+        self,
+        channel: str,
+        token: str,
+        thread_ts: str | None = None,
     ) -> None:
         key = SlackUnfurlEventKey(
-            channel=channel, token=token, thread_ts=thread_ts
+            channel=channel,
+            token=token,
+            thread_ts=thread_ts,
         )
         await self.store(
             str(key),
@@ -58,9 +67,14 @@ class SlackUnfurlEventStore(PydanticRedisStorage[SlackUnfurlEventModel]):
         )
 
     async def has_event(
-        self, channel: str, token: str, thread_ts: str | None = None
+        self,
+        channel: str,
+        token: str,
+        thread_ts: str | None = None,
     ) -> bool:
         key = SlackUnfurlEventKey(
-            channel=channel, token=token, thread_ts=thread_ts
+            channel=channel,
+            token=token,
+            thread_ts=thread_ts,
         )
         return await self.get(str(key)) is not None

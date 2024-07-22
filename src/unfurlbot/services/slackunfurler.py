@@ -12,14 +12,18 @@ class SlackUnfurlService:
     """A service for unfurling Slack messages."""
 
     def __init__(
-        self, *, unfurlers: list[DomainUnfurler], logger: BoundLogger
+        self,
+        *,
+        unfurlers: list[DomainUnfurler],
+        logger: BoundLogger,
     ) -> None:
         """Initialize the service."""
         self._domain_unfurlers: list[DomainUnfurler] = unfurlers
         self._logger = logger
 
     async def process_message(
-        self, message: SquarebotSlackMessageValue
+        self,
+        message: SquarebotSlackMessageValue,
     ) -> None:
         """Process a message, sending it to unfurl handlers."""
         # Ignore messages from bots

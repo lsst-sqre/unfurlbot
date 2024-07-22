@@ -21,7 +21,7 @@ def test_parsing_dm_42877() -> None:
     assert issue.date_created.isoformat() == "2024-02-13T16:23:06+00:00"
     assert issue.description is not None
     assert issue.description.startswith(
-        "This backend for Squarebot will replace"
+        "This backend for Squarebot will replace",
     )
     assert issue.reporter_name == "Jonathan Sick"
     assert issue.assignee_name == "Jonathan Sick"

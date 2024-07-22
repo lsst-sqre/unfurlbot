@@ -56,7 +56,9 @@ class JiraUnfurler(DomainUnfurler):
             await self.unfurl_issue(message, issue_key)
 
     async def unfurl_issue(
-        self, message: SquarebotSlackMessageValue, issue_key: str
+        self,
+        message: SquarebotSlackMessageValue,
+        issue_key: str,
     ) -> None:
         """Reply to a message with info about a Jira issue.
 
@@ -77,10 +79,13 @@ class JiraUnfurler(DomainUnfurler):
         # Create and send a Slack reply
         # Re-add support for thread_ts when rubin-squarebot is released
         reply_message = self.format_slack_message(
-            issue=issue, channel=message.channel, thread_ts=message.thread_ts
+            issue=issue,
+            channel=message.channel,
+            thread_ts=message.thread_ts,
         )
         self._logger.debug(
-            "Formatted Jira unfurl", reply_message=reply_message.to_slack()
+            "Formatted Jira unfurl",
+            reply_message=reply_message.to_slack(),
         )
         await self.send_reply(reply_message, token=issue_key)
 
@@ -178,9 +183,9 @@ class JiraUnfurler(DomainUnfurler):
         context_block = SlackContextBlock(
             elements=[
                 SlackTextObject(
-                    text=f"{assignee} | {issue.status_label} | {date_text}"
-                )
-            ]
+                    text=f"{assignee} | {issue.status_label} | {date_text}",
+                ),
+            ],
         )
         return SlackBlockKitMessage(
             text=fallback_text,

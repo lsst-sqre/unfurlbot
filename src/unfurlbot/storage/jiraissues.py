@@ -71,23 +71,28 @@ class JiraIssueSummary(BaseModel):
     # This is a plain-text label because statuses are site-configurable and
     # new statuses can be added.
     status_label: Annotated[
-        str, Field(description="The label for the issue status.")
+        str,
+        Field(description="The label for the issue status."),
     ]
 
     date_created: Annotated[
-        datetime, Field(description="The date the issue was created.")
+        datetime,
+        Field(description="The date the issue was created."),
     ]
 
     description: Annotated[
-        str | None, Field(description="The issue description.")
+        str | None,
+        Field(description="The issue description."),
     ] = None
 
     reporter_name: Annotated[
-        str, Field(description="The name of the issue reporter.")
+        str,
+        Field(description="The name of the issue reporter."),
     ]
 
     homepage: Annotated[
-        str, Field(description="The URL to the issue homepage.")
+        str,
+        Field(description="The URL to the issue homepage."),
     ]
 
     date_resolved: Annotated[
@@ -101,7 +106,9 @@ class JiraIssueSummary(BaseModel):
     ] = None
 
     _normalize_dates = field_validator(
-        "date_created", "date_resolved", mode="before"
+        "date_created",
+        "date_resolved",
+        mode="before",
     )(normalize_datetime)
 
     @classmethod
@@ -111,7 +118,7 @@ class JiraIssueSummary(BaseModel):
 
         if data["fields"]["resolutiondate"]:
             date_resolved = datetime.fromisoformat(
-                data["fields"]["resolutiondate"]
+                data["fields"]["resolutiondate"],
             )
         else:
             date_resolved = None

@@ -151,7 +151,8 @@ class KafkaConnectionSettings(BaseSettings):
     )
 
     model_config = SettingsConfigDict(
-        env_prefix="KAFKA_", case_sensitive=False
+        env_prefix="KAFKA_",
+        case_sensitive=False,
     )
 
     @property
@@ -175,7 +176,7 @@ class KafkaConnectionSettings(BaseSettings):
             if self.cert_temp_dir is None:
                 raise RuntimeError(
                     "KAFKIT_KAFKA_CERT_TEMP_DIR must be set when "
-                    "a client CA certificate is provided."
+                    "a client CA certificate is provided.",
                 )
             client_ca = Path(self.client_ca_path).read_text()
             client_cert = Path(self.client_cert_path).read_text()
@@ -188,11 +189,13 @@ class KafkaConnectionSettings(BaseSettings):
         # Create an SSL context on the basis that we're the client
         # authenticating the server (the Kafka broker).
         ssl_context = ssl.create_default_context(
-            purpose=ssl.Purpose.SERVER_AUTH, cafile=str(self.cluster_ca_path)
+            purpose=ssl.Purpose.SERVER_AUTH,
+            cafile=str(self.cluster_ca_path),
         )
         # Add the certificates that the Kafka broker uses to authenticate us.
         ssl_context.load_cert_chain(
-            certfile=str(client_cert_path), keyfile=str(self.client_key_path)
+            certfile=str(client_cert_path),
+            keyfile=str(self.client_key_path),
         )
 
         return ssl_context
@@ -206,11 +209,13 @@ class Config(BaseSettings):
     path_prefix: str = Field("/unfurlbot", title="URL prefix for application")
 
     profile: Profile = Field(
-        Profile.development, title="Application logging profile"
+        Profile.development,
+        title="Application logging profile",
     )
 
     log_level: LogLevel = Field(
-        LogLevel.INFO, title="Log level of the application's logger"
+        LogLevel.INFO,
+        title="Log level of the application's logger",
     )
 
     environment_url: str = Field(
@@ -283,7 +288,8 @@ class Config(BaseSettings):
     )
 
     consumer_group_id: str = Field(
-        "unfurlbot", title="Kafka consumer group ID"
+        "unfurlbot",
+        title="Kafka consumer group ID",
     )
 
     app_mention_topic: str = Field(
@@ -341,7 +347,8 @@ class Config(BaseSettings):
     )
 
     model_config = SettingsConfigDict(
-        env_prefix="UNFURLBOT_", case_sensitive=False
+        env_prefix="UNFURLBOT_",
+        case_sensitive=False,
     )
 
     @property

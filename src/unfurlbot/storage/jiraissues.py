@@ -6,7 +6,8 @@ from datetime import datetime
 from typing import Annotated, Any, Self
 
 from httpx import AsyncClient
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from safir.pydantic import normalize_datetime
 
 from ..config import config
 
@@ -98,6 +99,10 @@ class JiraIssueSummary(BaseModel):
         str | None,
         Field(description="The name of the issue assignee, if applicable."),
     ] = None
+
+    _normalize_dates = field_validator(
+        "date_created", "date_resolved", mode="before"
+    )(normalize_datetime)
 
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> Self:

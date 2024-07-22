@@ -61,3 +61,19 @@ def test_parsing_rfc_880() -> None:
     assert issue.date_resolved is not None
     assert issue.date_resolved.isoformat() == "2024-01-31T23:21:23+00:00"
     assert issue.homepage == "https://jira.lsstcorp.org/browse/RFC-880"
+
+
+def test_parsing_dm_37782() -> None:
+    """Test parsing DM-37782 (an epic) into a JiraIssueSummary."""
+    p = Path(__file__).parent / "data" / "DM-37782.json"
+    issue = JiraIssueSummary.from_json(json.loads(p.read_text()))
+    assert issue.key == "DM-37782"
+    assert issue.summary == (
+        "Documentation services and front end development and support"
+    )
+    assert issue.status_label == "In Progress"
+    assert issue.date_created.isoformat() == "2023-01-30T21:20:55+00:00"
+    assert issue.assignee_name == "Jonathan Sick"
+    assert issue.reporter_name == "frossie"
+    assert issue.date_resolved is None
+    assert issue.homepage == "https://jira.lsstcorp.org/browse/DM-37782"

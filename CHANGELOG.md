@@ -7,7 +7,23 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.2.2'></a>
+
+## 0.2.2 (2024-07-22)
+
+### Bug fixes
+
+- Make `description` optional in the JiraIssueSummmary model. Rubin epics typically do not have descriptions in the same manner as regular issues. Since we don't use the description field in the unfurl, we can safely make it optional.
+- Normalize dates in the JiraIssueSummary so that they are consistently converted to the UTC timezone.
+- Updated `ProcessContext` to call `aclose` rather than `close` on the Redis client.
+
+### Other changes
+
+- Unfurlbot is now formatted with Ruff.
+- Adopt uv and tox-uv for package installation and dependency resolution.
+
 <a id='changelog-0.2.1'></a>
+
 ## 0.2.1 (2024-04-03)
 
 ### Bug fixes
@@ -15,6 +31,7 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 - Stop using the mrkdwn quote in the main unfurled content because it down't present well in mobile views.
 
 <a id='changelog-0.2.0'></a>
+
 ## 0.2.0 (2024-03-04)
 
 ### New features
@@ -22,6 +39,7 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 - Unfurlbot now uses Redis to store unfurl events and debounce unfurls to the same channel or thread. By default, Unfurlbot won't unfurl the same Jira issue to the same channel or thread more than once every 5 minutes. This can be configured with the `UNFURLBOT_SLACK_DEBOUNCE_TIME` environment variable.
 
 <a id='changelog-0.1.0'></a>
+
 ## 0.1.0 (2024-02-29)
 
 ### New features

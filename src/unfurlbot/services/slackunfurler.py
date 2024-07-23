@@ -26,10 +26,5 @@ class SlackUnfurlService:
         message: SquarebotSlackMessageValue,
     ) -> None:
         """Process a message, sending it to unfurl handlers."""
-        # Ignore messages from bots
-        if message.bot_id is not None:
-            self._logger.debug("Ignoring message from bot")
-            return
-
         for unfurler in self._domain_unfurlers:
             await unfurler.process_slack(message)

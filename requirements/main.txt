@@ -161,9 +161,9 @@ email-validator==2.2.0 \
     --hash=sha256:561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631 \
     --hash=sha256:cb690f344c617a714f22e66ae771445a1ceb46821152df8e165c5f9a364582b7
     # via fastapi
-fast-depends==2.4.6 \
-    --hash=sha256:50d0ba61450920173c498c08c01ec22fa22aa62c4e82bf409df9f5b9f677a31c \
-    --hash=sha256:724a5068c3f955e02121a953428349ef34c8a2fadd65f073e94c94d54cec4554
+fast-depends==2.4.7 \
+    --hash=sha256:44464a7807131df92aeb12ad511a027ef385e000f4ec15a427ae4ea458a112ce \
+    --hash=sha256:ae7c138673639cfe00836b60107395c910cc1595036074c85c2505177f7a24fc
     # via faststream
 fastapi==0.111.1 \
     --hash=sha256:4f51cfa25d72f9fbc3280832e84b32494cf186f50158d364a8765aabf22587bf \
@@ -510,9 +510,9 @@ rich==13.7.1 \
     --hash=sha256:4edbae314f59eb482f54e9e30bf00d33350aaa94f4bfcd4e9e3110e64d0d7222 \
     --hash=sha256:9be308cb1fe2f1f57d67ce99e95af38a1e2bc71ad9813b0e247cf7ffbcc3a432
     # via typer
-rubin-squarebot==0.8.0 \
-    --hash=sha256:a8a671cc8cb6eb59af923bd42eb2dd0bbb145f6b7aaf9c27f9fa554fee28299c \
-    --hash=sha256:c05de27b886d47324bf258f5db4876312bebea09bcdf17b795387017ab1bd1a4
+rubin-squarebot==0.9.0 \
+    --hash=sha256:556b7c5e5404ed0527ae6626b782b6580d40e399d98c533e40e5a2379bf3a3bd \
+    --hash=sha256:6965cc9e08249496255a808234a3305dac93df441266f5d891578fa9489811a1
     # via -r requirements/main.in
 safir==6.1.0 \
     --hash=sha256:54acf6078d94813f4dddeb8459ad92cfe304c7d1414d4ce57ec1afce0c0a302a \
@@ -560,9 +560,9 @@ uritemplate==4.1.1 \
     --hash=sha256:4346edfc5c3b79f694bccd6d6099a322bbeb628dbf2cd86eea55a456ce5124f0 \
     --hash=sha256:830c08b8d99bdd312ea4ead05994a38e8936266f84b9a7878232db50b044e02e
     # via gidgethub
-uvicorn==0.30.1 \
-    --hash=sha256:cd17daa7f3b9d7a24de3617820e634d0933b69eed8e33a516071174427238c81 \
-    --hash=sha256:d46cd8e0fd80240baffbcd9ec1012a712938754afcf81bce56c024c1656aece8
+uvicorn==0.30.3 \
+    --hash=sha256:0d114d0831ff1adbf231d358cbf42f17333413042552a624ea6a9b4c33dcfd81 \
+    --hash=sha256:94a3608da0e530cea8f69683aa4126364ac18e3826b6630d1a65f4638aade503
     # via
     #   -r requirements/main.in
     #   fastapi

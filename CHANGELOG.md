@@ -7,6 +7,14 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.3.0'></a>
+
+## 0.3.0 (2024-07-25)
+
+### New features
+
+- Unfurlbot now processes messages from other bots.
+
 <a id='changelog-0.2.2'></a>
 
 ## 0.2.2 (2024-07-22)

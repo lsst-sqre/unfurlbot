@@ -582,7 +582,6 @@ markdown-it-py==3.0.0 \
     --hash=sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1 \
     --hash=sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb
     # via
-    #   -c requirements/main.txt
     #   documenteer
     #   mdit-py-plugins
     #   myst-parser
@@ -663,9 +662,7 @@ mdit-py-plugins==0.4.2 \
 mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
-    # via
-    #   -c requirements/main.txt
-    #   markdown-it-py
+    # via markdown-it-py
 mypy==1.11.2 \
     --hash=sha256:06d26c277962f3fb50e13044674aa10553981ae514288cb7d0a738f495550b36 \
     --hash=sha256:2ff93107f01968ed834f4256bc1fc4475e2fecf6c661260066a985b52741ddce \
@@ -916,7 +913,6 @@ pygments==2.18.0 \
     --hash=sha256:786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199 \
     --hash=sha256:b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a
     # via
-    #   -c requirements/main.txt
     #   ipython
     #   pydata-sphinx-theme
     #   sphinx

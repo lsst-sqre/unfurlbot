@@ -27,14 +27,13 @@ __all__ = ["app", "config"]
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Set up and tear down the application."""
-    # Any code here will be run when the application starts up.
     logger = get_logger(__name__)
 
+    # Any code here will be run when the application starts up.
     await consumer_context_dependency.initialize()
+    logger.info("Unfurlbot start up complete.")
 
-    async with kafka_router.lifespan_context(app):
-        logger.info("Unfurlbot start up complete.")
-        yield
+    yield
 
     # Any code here will be run when the application shuts down.
     await consumer_context_dependency.aclose()

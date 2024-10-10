@@ -1,12 +1,10 @@
 """A dependency for providing context to consumers."""
 
-from __future__ import annotations
-
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
 from aiokafka import ConsumerRecord
-from faststream import context
 from faststream.kafka.fastapi import KafkaMessage
 from structlog import get_logger
 from structlog.stdlib import BoundLogger
@@ -51,11 +49,16 @@ class ConsumerContextDependency:
     def __init__(self) -> None:
         self._process_context: ProcessContext | None = None
 
-    async def __call__(self) -> ConsumerContext:
+    async def __call__(self, message: KafkaMessage) -> ConsumerContext:
         """Create a per-request context."""
-        # Get the message from the FastStream context
-        message: KafkaMessage = context.get_local("message")
         record = message.raw_message
+
+        # The underlying Kafka messages can either be a single message or a
+        # tuple of messages. Since we only are using them to extract some
+        # metadata for logging purposes, use the first message if there are
+        # several.
+        if isinstance(record, Sequence):
+            record = record[0]
 
         # Add the Kafka context to the logger
         logger = get_logger(__name__)  # eventually use a logger dependency

@@ -7,6 +7,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.3.1'></a>
+## 0.3.1 (2024-10-10)
+
+### Bug fixes
+
+- Fix processing of bot messages by updating to the latest Kafka models.
+
 <a id='changelog-0.3.0'></a>
 
 ## 0.3.0 (2024-07-25)

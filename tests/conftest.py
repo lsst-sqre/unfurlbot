@@ -19,7 +19,7 @@ async def app() -> AsyncIterator[FastAPI]:
     Wraps the application in a lifespan manager so that startup and shutdown
     events are sent during test execution.
     """
-    async with LifespanManager(main.app):
+    async with LifespanManager(main.app, startup_timeout=30):
         yield main.app
 
 

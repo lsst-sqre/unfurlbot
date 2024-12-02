@@ -7,6 +7,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.3.2'></a>
+## 0.3.2 (2024-12-02)
+
+### Bug fixes
+
+- Require Jira ticket references start at a word boundary so that, for example, `LDM-1234` is not detected as ticket `DM-1234`.
+
 <a id='changelog-0.3.1'></a>
 ## 0.3.1 (2024-10-10)
 

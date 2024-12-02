@@ -89,21 +89,11 @@ asyncio_mode = "strict"
 # listed in python_files.
 python_files = ["tests/*.py", "tests/*/*.py"]
 
-# The rule used with Ruff configuration is to disable every lint that has
-# legitimate exceptions that are not dodgy code, rather than cluttering code
-# with noqa markers. This is therefore a reiatively relaxed configuration that
-# errs on the side of disabling legitimate lints.
-#
-# Reference for settings: https://beta.ruff.rs/docs/settings/
-# Reference for rules: https://beta.ruff.rs/docs/rules/
+# Use the generic Ruff configuration in ruff.toml and extend it with only
+# project-specific settings. Add a [tool.ruff.lint.extend-per-file-ignores]
+# section for project-specific ignore rules.
 [tool.ruff]
 extend = "ruff-shared.toml"
-
-[tool.ruff.lint]
-ignore = [
-    # Temporary bug workarounds.
-    "S113",    # https://github.com/astral-sh/ruff/issues/12210
-]
 
 [tool.ruff.lint.isort]
 known-first-party = ["unfurlbot", "tests"]

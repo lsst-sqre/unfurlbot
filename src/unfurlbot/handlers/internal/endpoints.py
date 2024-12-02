@@ -24,15 +24,10 @@ internal_router = APIRouter()
         " therefore cannot be used by external clients."
     ),
     include_in_schema=False,
-    response_model=Metadata,
     response_model_exclude_none=True,
     summary="Application metadata",
 )
 async def get_index() -> Metadata:
-    """GET ``/`` (the app's internal root).
-
-    By convention, this endpoint returns only the application's metadata.
-    """
     return get_metadata(
         package_name="unfurlbot",
         application_name=config.name,

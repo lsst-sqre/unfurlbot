@@ -13,8 +13,8 @@ starlette
 uvicorn[standard]
 
 # Other dependencies.
-pydantic
+pydantic>2
 pydantic-settings
-safir[redis]>=5
+safir[redis]>=6.5.0
 faststream[kafka]
 rubin-squarebot>=0.8.0

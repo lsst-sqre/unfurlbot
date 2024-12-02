@@ -4,7 +4,6 @@ from typing import Annotated
 
 from fastapi import Depends
 from faststream.kafka.fastapi import KafkaRouter
-from faststream.security import BaseSecurity
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
 from structlog import get_logger
 
@@ -17,11 +16,8 @@ from ..dependencies.consumercontext import (
 __all__ = ["handle_slack_message", "kafka_router"]
 
 
-kafka_security = BaseSecurity(ssl_context=config.kafka.ssl_context)
 kafka_router = KafkaRouter(
-    config.kafka.bootstrap_servers,
-    security=kafka_security,
-    logger=get_logger(__name__),
+    **config.kafka.to_faststream_params(), logger=get_logger(__name__)
 )
 
 

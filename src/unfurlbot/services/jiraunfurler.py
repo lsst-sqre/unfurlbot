@@ -122,7 +122,7 @@ class JiraUnfurler(DomainUnfurler):
         text = re.sub(r"https?://\S+", "", text)
 
         projects = await self.get_projects()
-        key_pattern = rf"((?:{'|'.join(projects)})-\d+)"
+        key_pattern = rf"\b((?:{'|'.join(projects)})-\d+)"
         matches = re.findall(key_pattern, text)
         matches = list({str(m) for m in matches})  # Deduplicate
         return sorted(matches)

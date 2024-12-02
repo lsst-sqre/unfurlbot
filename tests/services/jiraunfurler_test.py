@@ -35,4 +35,9 @@ async def test_key_extraction() -> None:
     keys = await jira_unfurler.extract_issues(text)
     assert keys == ["DM-1234"]
 
+    # Test that prefixes cause the tickets to not be recognized.
+    text = "Some discussion LDM-1234 other stuff DM-5678 blah"
+    keys = await jira_unfurler.extract_issues(text)
+    assert keys == ["DM-5678"]
+
     await process_contact.aclose()

@@ -7,6 +7,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.4.0'></a>
+## 0.4.0 (2024-12-05)
+
+### New features
+
+- Allow configuration of the timeout when making requests to the Jira server instead of only using the 20s default.
+
 <a id='changelog-0.3.2'></a>
 ## 0.3.2 (2024-12-02)
 

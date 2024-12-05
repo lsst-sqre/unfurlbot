@@ -50,6 +50,7 @@ class JiraIssueClient:
         response = await self._http_client.get(
             f"{self._proxy_base}{path}",
             headers={"Authorization": f"Bearer {self._token}"},
+            timeout=config.jira_timeout.total_seconds(),
         )
         response.raise_for_status()  # add a proper error message
         return response.json()

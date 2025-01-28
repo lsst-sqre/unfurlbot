@@ -33,11 +33,21 @@ class DomainUnfurler(ABC):
         raise NotImplementedError
 
     async def send_reply(
-        self,
-        message: SlackBlockKitMessage,
-        token: str,
+        self, message: SlackBlockKitMessage, token: str, token_type: str
     ) -> None:
-        """Send a reply to a Slack message."""
+        """Send an unfurl for a Slack message.
+
+        Parameters
+        ----------
+        message
+            The message to send.
+        token
+            The token string that triggered the unfurl. For example, the Jira
+            issue key or the document handle.
+        token_type
+            The type of token. For example, "jira". This is used for logging
+            purposes.
+        """
         # https://api.slack.com/methods/chat.postMessage
         body = message.to_slack()
         body["token"] = config.slack_token.get_secret_value()
@@ -52,7 +62,15 @@ class DomainUnfurler(ABC):
             },
         )
         resp_json = r.json()
-        if not resp_json["ok"]:
+        if resp_json["ok"]:
+            self._logger.info(
+                "Sent unfurl",
+                channel=message.channel,
+                thread_ts=message.thread_ts,
+                token=token,
+                token_type=token_type,
+            )
+        else:
             self._logger.error(
                 "Failed to send Slack message",
                 response=resp_json,

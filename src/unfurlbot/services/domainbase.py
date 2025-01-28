@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import UTC, datetime
+from typing import ClassVar
 
 from httpx import AsyncClient
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
@@ -16,6 +17,8 @@ from ..storage.unfurleventstore import SlackUnfurlEventStore
 
 class DomainUnfurler(ABC):
     """Base class for domain unfurlers."""
+
+    domain_name: ClassVar[str] = "default"
 
     def __init__(
         self,

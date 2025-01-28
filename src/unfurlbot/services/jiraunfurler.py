@@ -23,6 +23,8 @@ from .domainbase import DomainUnfurler
 class JiraUnfurler(DomainUnfurler):
     """Unfurls Jira issue keys found in Slack messages."""
 
+    domain_name = "jira"
+
     def __init__(
         self,
         *,
@@ -95,7 +97,7 @@ class JiraUnfurler(DomainUnfurler):
             reply_message=reply_message.to_slack(),
         )
         await self.send_unfurl(
-            reply_message, token=issue_key, token_type="jira"
+            reply_message, token=issue_key, token_type=self.domain_name
         )
 
     async def extract_issues(self, text: str) -> list[str]:

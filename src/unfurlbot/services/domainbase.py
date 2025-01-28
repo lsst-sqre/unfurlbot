@@ -69,7 +69,7 @@ class DomainUnfurler(ABC):
                 trigger_ts=message.ts,
             )
             if self._is_trigger_message_stale(message):
-                token_logger.info("Ignoring stale trigger message")
+                token_logger.warning("Ignoring stale trigger message")
                 continue
             if await self._is_recently_unfurled(message, token):
                 token_logger.debug("Ignoring recently unfurled token")

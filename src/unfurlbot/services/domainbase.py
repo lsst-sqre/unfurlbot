@@ -71,6 +71,12 @@ class DomainUnfurler(ABC):
                 )
                 continue
             if await self._is_recently_unfurled(message, token):
+                self._logger.debug(
+                    "Ignoring recently unfurled token",
+                    token=token,
+                    channel=message.channel,
+                    thread_ts=message.thread_ts,
+                )
                 continue
             unfurl_slack_message = await self.create_slack_message(
                 token=token, trigger_message=message

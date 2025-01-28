@@ -32,7 +32,7 @@ class DomainUnfurler(ABC):
         """Process a Slack message and unfurl it if appropriate."""
         raise NotImplementedError
 
-    async def send_reply(
+    async def send_unfurl(
         self, message: SlackBlockKitMessage, token: str, token_type: str
     ) -> None:
         """Send an unfurl for a Slack message.

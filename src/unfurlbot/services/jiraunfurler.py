@@ -87,7 +87,7 @@ class JiraUnfurler(DomainUnfurler):
             "Formatted Jira unfurl",
             reply_message=reply_message.to_slack(),
         )
-        await self.send_reply(
+        await self.send_unfurl(
             reply_message, token=issue_key, token_type="jira"
         )
 

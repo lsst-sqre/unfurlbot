@@ -19,7 +19,7 @@ async def test_key_extraction() -> None:
 
     jira_unfurler = factory.get_jira_domain_unfurler()
     text = "DM-1234 DM-5678\nRFC-1"
-    keys = await jira_unfurler.extract_issues(text)
+    keys = await jira_unfurler._extract_issues(text)
     assert keys == ["DM-1234", "DM-5678", "RFC-1"]
 
     # Test that URLs are removed, but Jira URLs are preserved
@@ -27,17 +27,17 @@ async def test_key_extraction() -> None:
         "DM-1234 https://jira.lsstcorp.org/browse/DM-5678 "
         "https://example.com/RFC-1"
     )
-    keys = await jira_unfurler.extract_issues(text)
+    keys = await jira_unfurler._extract_issues(text)
     assert keys == ["DM-1234", "DM-5678"]
 
     # Test that code blocks are removed
     text = "DM-1234\n```DM-5678```\n\n`RFC-1`"
-    keys = await jira_unfurler.extract_issues(text)
+    keys = await jira_unfurler._extract_issues(text)
     assert keys == ["DM-1234"]
 
     # Test that prefixes cause the tickets to not be recognized.
     text = "Some discussion LDM-1234 other stuff DM-5678 blah"
-    keys = await jira_unfurler.extract_issues(text)
+    keys = await jira_unfurler._extract_issues(text)
     assert keys == ["DM-5678"]
 
     await process_contact.aclose()

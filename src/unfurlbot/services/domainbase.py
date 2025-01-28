@@ -16,9 +16,33 @@ from ..storage.unfurleventstore import SlackUnfurlEventStore
 
 
 class DomainUnfurler(ABC):
-    """Base class for domain unfurlers."""
+    """Base class for domain unfurlers.
 
-    domain_name: ClassVar[str] = "default"
+    Notes
+    -----
+    Classes that implement a domain unfurler should inherit from this class
+    with three points of implementation:
+
+    1. Set the `unfurler_domain` class variable to a unique string that
+       identifies the domain. This domain is typically used for logging unfurl
+       activity.
+
+    2. Implement the `extract_tokens` method to extract tokens from a Slack
+       message. The nature of tokens are domain-specific. For example, in the
+       Jira domain, the token is the issue key. In other domains, the token
+       could be a document handle or even a URL.
+
+    3. Implement the `create_slack_message` method to create a
+       `SlackBlockKitMessage`. This message acts as an unfurl for the token,
+       and is send automatically by the unfurler through the `process_slack`
+       entry point.
+
+    This base class handles sending the generated unfurl messages, and ensuring
+    that messages are debounced to prevent repeated unfurls of the same token,
+    and that messages are only unfurled if the trigger message is recent.
+    """
+
+    unfurler_domain: ClassVar[str] = "default"
 
     def __init__(
         self,
@@ -28,16 +52,53 @@ class DomainUnfurler(ABC):
         unfurl_event_store: SlackUnfurlEventStore,
     ) -> None:
         self._http_client: AsyncClient = http_client
-        self._logger: BoundLogger = logger
+        self._logger: BoundLogger = logger.bind(
+            token_type=self.unfurler_domain
+        )
         self._unfurl_event_store = unfurl_event_store
 
-    @abstractmethod
     async def process_slack(self, message: SquarebotSlackMessageValue) -> None:
-        """Process a Slack message and unfurl it if appropriate."""
+        """Process a Slack message and unfurl extracted tokens."""
+        tokens = await self.extract_tokens(message)
+        for token in tokens:
+            if self._is_trigger_message_stale(message):
+                self._logger.info(
+                    "Ignoring stale trigger message",
+                    token=token,
+                    trigger_ts=message.ts,
+                    channel=message.channel,
+                    thread_ts=message.thread_ts,
+                )
+                continue
+            if await self._is_recently_unfurled(message, token):
+                continue
+            unfurl_slack_message = await self.create_slack_message(
+                token=token, trigger_message=message
+            )
+            await self._send_unfurl(
+                message=unfurl_slack_message,
+                token=token,
+            )
+
+    @abstractmethod
+    async def extract_tokens(
+        self, message: SquarebotSlackMessageValue
+    ) -> list[str]:
+        """Extract tokens from a Slack message."""
         raise NotImplementedError
 
-    async def send_unfurl(
-        self, message: SlackBlockKitMessage, token: str, token_type: str
+    @abstractmethod
+    async def create_slack_message(
+        self,
+        *,
+        token: str,
+        trigger_message: SquarebotSlackMessageValue,
+    ) -> SlackBlockKitMessage:
+        """Create a Slack message to unfurl a token."""
+        raise NotImplementedError
+
+    async def _send_unfurl(
+        self, *, message: SlackBlockKitMessage, token: str
     ) -> None:
         """Send an unfurl for a Slack message.
 
@@ -48,9 +109,6 @@ class DomainUnfurler(ABC):
         token
             The token string that triggered the unfurl. For example, the Jira
             issue key or the document handle.
-        token_type
-            The type of token. For example, "jira". This is used for logging
-            purposes.
         """
         # https://api.slack.com/methods/chat.postMessage
         body = message.to_slack()
@@ -72,7 +130,6 @@ class DomainUnfurler(ABC):
                 channel=message.channel,
                 thread_ts=message.thread_ts,
                 token=token,
-                token_type=token_type,
             )
         else:
             self._logger.error(
@@ -80,6 +137,9 @@ class DomainUnfurler(ABC):
                 response=resp_json,
                 status_code=r.status_code,
                 reply_message=body.pop("token"),
+                channel=message.channel,
+                thread_ts=message.thread_ts,
+                token=token,
             )
 
         # Add the event to the store
@@ -91,7 +151,7 @@ class DomainUnfurler(ABC):
                 token=token,
             )
 
-    async def is_recently_unfurled(
+    async def _is_recently_unfurled(
         self,
         message: SquarebotSlackMessageValue,
         token: str,
@@ -103,7 +163,7 @@ class DomainUnfurler(ABC):
             token=token,
         )
 
-    def is_trigger_message_stale(
+    def _is_trigger_message_stale(
         self,
         message: SquarebotSlackMessageValue,
     ) -> bool:

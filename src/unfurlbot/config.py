@@ -64,6 +64,17 @@ class Config(BaseSettings):
         ),
     )
 
+    slack_trigger_message_ttl: int = Field(
+        60,
+        description=(
+            "The number of seconds before a trigger message is considered "
+            "stale and can be ignored. This is used to prevent unfurling "
+            "messages that are no longer relevant, and have potentially been "
+            "re-ingested by Squarebot. This also effectively sets the maximum "
+            "latency for Unfurlbot to respond to a message."
+        ),
+    )
+
     jira_proxy_path: str = Field(
         "/jira-data-proxy",
         title="Jira Data Proxy URL path",

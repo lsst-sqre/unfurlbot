@@ -23,6 +23,8 @@ from .domainbase import DomainUnfurler
 class JiraUnfurler(DomainUnfurler):
     """Unfurls Jira issue keys found in Slack messages."""
 
+    unfurler_domain = "jira"
+
     def __init__(
         self,
         *,
@@ -39,57 +41,26 @@ class JiraUnfurler(DomainUnfurler):
         self._jira_client = jira_client
         self._jira_host = config.jira_root_url
 
-    async def process_slack(self, message: SquarebotSlackMessageValue) -> None:
-        """Process a Slack message and unfurl it if appropriate.
+    async def extract_tokens(
+        self, message: SquarebotSlackMessageValue
+    ) -> list[str]:
+        """Extract Jira issue tokens from a Slack message.
+
+        Implements the abstract method from the base class.
 
         Parameters
         ----------
         message
-            The message to process. This is a Kafka message value provided by
-            Squarebot.
+            The Slack message to process, containing text content.
+
+        Returns
+        -------
+        list
+            A list of Jira issue tokens found in the message text.
         """
-        issue_keys = await self.extract_issues(message.text)
-        # Consider making this async
-        for issue_key in issue_keys:
-            if await self.is_recently_unfurled(message, issue_key):
-                continue
-            await self.unfurl_issue(message, issue_key)
+        return await self._extract_issues(message.text)
 
-    async def unfurl_issue(
-        self,
-        message: SquarebotSlackMessageValue,
-        issue_key: str,
-    ) -> None:
-        """Reply to a message with info about a Jira issue.
-
-        This method is called by `process_slack` for each detected issue key.
-
-        Parameters
-        ----------
-        message
-            The message to reply to.
-        issue_key
-            The key of the issue to reply about.
-        """
-        # - Check with the redis cache to see if we've already unfurled this
-
-        # - Fetch the issue from the Jira API
-        issue = await self._jira_client.get_issue(issue_key)
-
-        # Create and send a Slack reply
-        # Re-add support for thread_ts when rubin-squarebot is released
-        reply_message = self.format_slack_message(
-            issue=issue,
-            channel=message.channel,
-            thread_ts=message.thread_ts,
-        )
-        self._logger.debug(
-            "Formatted Jira unfurl",
-            reply_message=reply_message.to_slack(),
-        )
-        await self.send_reply(reply_message, token=issue_key)
-
-    async def extract_issues(self, text: str) -> list[str]:
+    async def _extract_issues(self, text: str) -> list[str]:
         """Extract issue keys from a Slack message.
 
         Parameters
@@ -121,19 +92,57 @@ class JiraUnfurler(DomainUnfurler):
         # Remove URLs from the text
         text = re.sub(r"https?://\S+", "", text)
 
-        projects = await self.get_projects()
+        projects = await self._get_projects()
         key_pattern = rf"\b((?:{'|'.join(projects)})-\d+)"
         matches = re.findall(key_pattern, text)
         matches = list({str(m) for m in matches})  # Deduplicate
         return sorted(matches)
 
-    async def get_projects(self) -> list[str]:
+    async def _get_projects(self) -> list[str]:
         """Get a list of Jira projects."""
         # This is a shim for an API-driven approach to getting the list of
         # projects in the Rubin Jira.
         return config.parsed_jira_projects
 
-    def format_slack_message(
+    async def create_slack_message(
+        self,
+        *,
+        trigger_message: SquarebotSlackMessageValue,
+        token: str,
+        logger: BoundLogger,
+    ) -> SlackBlockKitMessage:
+        """Create an unfurl message with info about a Jira issue.
+
+        This method is called by `process_slack` for each detected issue key.
+
+        Parameters
+        ----------
+        trigger_message
+            The message to reply to.
+        token
+            The key of the issue to reply about.
+        logger
+            A logger bound with the token and message context.
+        """
+        # - Fetch the issue from the Jira API
+        issue = await self._jira_client.get_issue(token)
+
+        # Create and send a Slack reply
+        reply_message = self._format_slack_message(
+            issue=issue,
+            channel=trigger_message.channel,
+            thread_ts=trigger_message.thread_ts,
+        )
+        logger.debug(
+            "Formatted Jira unfurl",
+            reply_message=reply_message.to_slack(),
+            token=token,
+            channel=trigger_message.channel,
+            thread_ts=trigger_message.thread_ts,
+        )
+        return reply_message
+
+    def _format_slack_message(
         self,
         *,
         issue: JiraIssueSummary,

@@ -7,7 +7,22 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.5.0'></a>
+
+## 0.5.0 (2025-01-28)
+
+### New features
+
+- Unfurlbot now ignores trigger messages if they are older than `UNFURLBOT_SLACK_TRIGGER_MESSAGE_TTL` (a time in seconds). This prevents unfurling messages that are no longer relevant and mitigates circumstances where Unfurlbot may be processing old messages.
+
+### Other changes
+
+- Refactored the `DomainUnfurler` base class so that the `process_slack` method now calls two hooks that subclasses need to implement: `extract_tokens` and `create_slack_message`. With this structure the pipeline for processing Slack messages is more consistent and easier to implement for new unfurling domains.
+
+- Improved logging. All log messages for a given token include context about the token, token type (e.g. `jira`), the channel ID, and the timestamps of the triggering message and thread (if applicable). Log messages are sent for `Sent unfurl` events, and warnings are logged for `Ignoring stale trigger message` events.
+
 <a id='changelog-0.4.0'></a>
+
 ## 0.4.0 (2024-12-05)
 
 ### New features
@@ -15,6 +30,7 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 - Allow configuration of the timeout when making requests to the Jira server instead of only using the 20s default.
 
 <a id='changelog-0.3.2'></a>
+
 ## 0.3.2 (2024-12-02)
 
 ### Bug fixes
@@ -22,6 +38,7 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 - Require Jira ticket references start at a word boundary so that, for example, `LDM-1234` is not detected as ticket `DM-1234`.
 
 <a id='changelog-0.3.1'></a>
+
 ## 0.3.1 (2024-10-10)
 
 ### Bug fixes

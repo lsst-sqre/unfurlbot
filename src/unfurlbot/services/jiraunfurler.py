@@ -109,6 +109,7 @@ class JiraUnfurler(DomainUnfurler):
         *,
         trigger_message: SquarebotSlackMessageValue,
         token: str,
+        logger: BoundLogger,
     ) -> SlackBlockKitMessage:
         """Create an unfurl message with info about a Jira issue.
 
@@ -116,10 +117,12 @@ class JiraUnfurler(DomainUnfurler):
 
         Parameters
         ----------
-        message
+        trigger_message
             The message to reply to.
-        issue_key
+        token
             The key of the issue to reply about.
+        logger
+            A logger bound with the token and message context.
         """
         # - Fetch the issue from the Jira API
         issue = await self._jira_client.get_issue(token)
@@ -130,7 +133,7 @@ class JiraUnfurler(DomainUnfurler):
             channel=trigger_message.channel,
             thread_ts=trigger_message.thread_ts,
         )
-        self._logger.debug(
+        logger.debug(
             "Formatted Jira unfurl",
             reply_message=reply_message.to_slack(),
             token=token,

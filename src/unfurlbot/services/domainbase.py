@@ -61,29 +61,24 @@ class DomainUnfurler(ABC):
         """Process a Slack message and unfurl extracted tokens."""
         tokens = await self.extract_tokens(message)
         for token in tokens:
+            # This is a logger bound to the specific token context
+            token_logger = self._logger.bind(
+                token=token,
+                channel=message.channel,
+                thread_ts=message.thread_ts,
+                trigger_ts=message.ts,
+            )
             if self._is_trigger_message_stale(message):
-                self._logger.info(
-                    "Ignoring stale trigger message",
-                    token=token,
-                    trigger_ts=message.ts,
-                    channel=message.channel,
-                    thread_ts=message.thread_ts,
-                )
+                token_logger.info("Ignoring stale trigger message")
                 continue
             if await self._is_recently_unfurled(message, token):
-                self._logger.debug(
-                    "Ignoring recently unfurled token",
-                    token=token,
-                    channel=message.channel,
-                    thread_ts=message.thread_ts,
-                )
+                token_logger.debug("Ignoring recently unfurled token")
                 continue
             unfurl_slack_message = await self.create_slack_message(
-                token=token, trigger_message=message
+                token=token, trigger_message=message, logger=token_logger
             )
             await self._send_unfurl(
-                message=unfurl_slack_message,
-                token=token,
+                message=unfurl_slack_message, token=token, logger=token_logger
             )
 
     @abstractmethod
@@ -99,12 +94,25 @@ class DomainUnfurler(ABC):
         *,
         token: str,
         trigger_message: SquarebotSlackMessageValue,
+        logger: BoundLogger,
     ) -> SlackBlockKitMessage:
-        """Create a Slack message to unfurl a token."""
+        """Create a Slack message to unfurl a token.
+
+        This method is called by `process_slack` for each detected token.
+
+        Parameters
+        ----------
+        trigger_message
+            The message to reply to.
+        token
+            The key of the issue to reply about.
+        logger
+            A logger bound with the token and message context.
+        """
         raise NotImplementedError
 
     async def _send_unfurl(
-        self, *, message: SlackBlockKitMessage, token: str
+        self, *, message: SlackBlockKitMessage, token: str, logger: BoundLogger
     ) -> None:
         """Send an unfurl for a Slack message.
 
@@ -115,6 +123,8 @@ class DomainUnfurler(ABC):
         token
             The token string that triggered the unfurl. For example, the Jira
             issue key or the document handle.
+        logger
+            A logger bound with the token and message context.
         """
         # https://api.slack.com/methods/chat.postMessage
         body = message.to_slack()
@@ -131,14 +141,14 @@ class DomainUnfurler(ABC):
         )
         resp_json = r.json()
         if resp_json["ok"]:
-            self._logger.info(
+            logger.info(
                 "Sent unfurl",
                 channel=message.channel,
                 thread_ts=message.thread_ts,
                 token=token,
             )
         else:
-            self._logger.error(
+            logger.error(
                 "Failed to send Slack message",
                 response=resp_json,
                 status_code=r.status_code,

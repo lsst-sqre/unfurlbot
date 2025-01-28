@@ -53,6 +53,15 @@ class JiraUnfurler(DomainUnfurler):
         for issue_key in issue_keys:
             if await self.is_recently_unfurled(message, issue_key):
                 continue
+            if self.is_trigger_message_stale(message):
+                self._logger.info(
+                    "Ignoring stale trigger message",
+                    token=issue_key,
+                    trigger_ts=message.ts,
+                    channel=message.channel,
+                    thread_ts=message.thread_ts,
+                )
+                continue
             await self.unfurl_issue(message, issue_key)
 
     async def unfurl_issue(
@@ -71,8 +80,6 @@ class JiraUnfurler(DomainUnfurler):
         issue_key
             The key of the issue to reply about.
         """
-        # - Check with the redis cache to see if we've already unfurled this
-
         # - Fetch the issue from the Jira API
         issue = await self._jira_client.get_issue(issue_key)
 

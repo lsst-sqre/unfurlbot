@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from datetime import UTC, datetime
 
 from httpx import AsyncClient
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
@@ -98,3 +99,28 @@ class DomainUnfurler(ABC):
             thread_ts=message.thread_ts,
             token=token,
         )
+
+    def is_trigger_message_stale(
+        self,
+        message: SquarebotSlackMessageValue,
+    ) -> bool:
+        """Check if a trigger message is stale.
+
+        Parameters
+        ----------
+        message
+            The message that triggered the unfurl.
+
+        Notes
+        -----
+        In https://rubinobs.atlassian.net/browse/DM-48614 we observed that
+        a message was repeatedly triggering unfurls. We don't know how this
+        happened and its possible that either the message was being resent by
+        Slack or was being re-consumed by unfurlbot. Regardless, we can
+        protect against this case by only unfurl if the triggering message is
+        current, within a time window defined by
+        `Config.slack_trigger_message_ttl`.
+        """
+        trigger_datetime = datetime.fromtimestamp(float(message.ts), tz=UTC)
+        age = datetime.now(tz=UTC) - trigger_datetime
+        return age.total_seconds() > config.slack_trigger_message_ttl

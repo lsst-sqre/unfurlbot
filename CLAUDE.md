@@ -156,5 +156,3 @@ Dependencies are defined in `pyproject.toml` using PEP 735 dependency groups:
 - `typing`: Type checking dependencies (mypy, type stubs, etc.)
 
 After editing dependencies in `pyproject.toml`, run `make update-deps` to update the `uv.lock` file.
-
-**Note:** The `requirements/` directory still exists during the transition period for tox compatibility but will be removed once the migration to nox is complete.

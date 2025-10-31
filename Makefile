@@ -1,6 +1,6 @@
 .PHONY: help
 help:
-	@echo "Make targets for example"
+	@echo "Make targets for unfurlbot"
 	@echo "make init - Set up dev environment"
 	@echo "make run - Start a local development instance"
 	@echo "make update - Update pinned dependencies and run make init"
@@ -8,27 +8,17 @@ help:
 
 .PHONY: init
 init:
-	uv pip install -r requirements/main.txt -r requirements/dev.txt \
-	    -r requirements/tox.txt
-	uv pip install --editable .
-	rm -rf .tox
-	uv pip install --upgrade pre-commit
+	uv sync --frozen --all-groups
 	pre-commit install
 
 .PHONY: run
 run:
-	tox run -e run
+	uv run uvicorn unfurlbot.main:app --reload
 
 .PHONY: update
 update: update-deps init
 
 .PHONY: update-deps
 update-deps:
-	uv pip install --upgrade pre-commit
+	uv lock --upgrade
 	pre-commit autoupdate
-	uv pip compile --upgrade --universal --generate-hashes		\
-	    --output-file requirements/main.txt requirements/main.in
-	uv pip compile --upgrade --universal --generate-hashes		\
-	    --output-file requirements/dev.txt requirements/dev.in
-	uv pip compile --upgrade --universal --generate-hashes		\
-	    --output-file requirements/tox.txt requirements/tox.in

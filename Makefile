@@ -9,7 +9,7 @@ help:
 .PHONY: init
 init:
 	uv sync --frozen --all-groups
-	pre-commit install
+	uv run --group=lint pre-commit install
 
 .PHONY: run
 run:
@@ -21,4 +21,4 @@ update: update-deps init
 .PHONY: update-deps
 update-deps:
 	uv lock --upgrade
-	pre-commit autoupdate
+	uv run --group=lint pre-commit autoupdate

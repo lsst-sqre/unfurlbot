@@ -26,16 +26,24 @@ __all__ = ["app", "config"]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """Set up and tear down the application."""
+    """Set up and tear down the application.
+
+    Note
+    ----
+    FastStream (0.5.0+) automatically manages the Kafka router lifecycle when
+    the router is included via app.include_router(). This lifespan only manages
+    application-specific resources (HTTP client, Redis) in the ProcessContext.
+    """
     logger = get_logger(__name__)
 
-    # Any code here will be run when the application starts up.
+    # Initialize ProcessContext resources (HTTP client, Redis).
+    # FastStream handles Kafka router lifecycle automatically.
     await consumer_context_dependency.initialize()
     logger.info("Unfurlbot start up complete.")
 
     yield
 
-    # Any code here will be run when the application shuts down.
+    # Clean up ProcessContext resources.
     await consumer_context_dependency.aclose()
 
 

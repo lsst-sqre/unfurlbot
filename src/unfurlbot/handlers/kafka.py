@@ -16,6 +16,9 @@ from ..dependencies.consumercontext import (
 __all__ = ["handle_slack_message", "kafka_router"]
 
 
+# FastStream (0.5.0+) automatically manages the KafkaRouter lifecycle when
+# included via app.include_router(). No manual initialization or cleanup
+# is needed in the application lifespan.
 kafka_router = KafkaRouter(
     **config.kafka.to_faststream_params(), logger=get_logger(__name__)
 )

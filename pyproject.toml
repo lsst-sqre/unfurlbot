@@ -51,6 +51,7 @@ lint = [
 nox = [
     "nox",
     "nox-uv>=0.6.1",
+    "testcontainers[kafka]>=4.0.0",
 ]
 typing = [
     "mypy",

@@ -1,11 +1,60 @@
 """Nox configuration for unfurlbot."""
 
+import os
+from pathlib import Path
+
 import nox
+
 
 # Default sessions (run with `nox`)
 nox.options.sessions = ["lint", "typing", "test"]
 nox.options.default_venv_backend = "uv"
 nox.options.reuse_existing_virtualenvs = True
+
+
+def _setup_testcontainers_logging() -> None:
+    """Suppress overly-verbose testcontainers logging."""
+    import logging
+
+    logging.getLogger("testcontainers").setLevel(logging.WARNING)
+
+
+def _setup_testcontainers_env() -> None:
+    """Set up testcontainers environment variables.
+
+    This handles macOS/Colima Docker host configuration.
+    """
+    # Check if running on macOS with Colima
+    if Path.home().joinpath(".colima/docker.sock").exists():
+        os.environ["DOCKER_HOST"] = "unix://" + str(
+            Path.home().joinpath(".colima/docker.sock")
+        )
+
+
+def _make_env_vars(extra: dict[str, str]) -> dict[str, str]:
+    """Create environment variables for tests.
+
+    Parameters
+    ----------
+    extra
+        Additional environment variables to include.
+
+    Returns
+    -------
+    dict
+        Complete set of environment variables for tests.
+    """
+    env_vars = {
+        "UNFURLBOT_LOG_LEVEL": "DEBUG",
+        "KAFKA_SECURITY_PROTOCOL": "PLAINTEXT",
+        "UNFURLBOT_SLACK_SIGNING": "1234",
+        "UNFURLBOT_SLACK_TOKEN": "1234",
+        "UNFURLBOT_SLACK_APP_ID": "1234",
+        "UNFURLBOT_GAFAELFAWR_TOKEN": "gt-1234",
+        "UNFURLBOT_ENVIRONMENT_URL": "https://example.com",
+    }
+    env_vars.update(extra)
+    return env_vars
 
 
 @nox.session(uv_groups=["lint"])
@@ -20,33 +69,31 @@ def typing(session: nox.Session) -> None:
     session.run("mypy", "src/unfurlbot", "tests")
 
 
-@nox.session(uv_groups=["dev"])
+@nox.session(uv_groups=["dev", "nox"])
 def test(session: nox.Session) -> None:
-    """Run pytest tests (no Kafka integration yet)."""
-    # Environment variables for tests
-    env_vars = {
-        "UNFURLBOT_LOG_LEVEL": "DEBUG",
-        "KAFKA_BOOTSTRAP_SERVERS": "localhost:9092",
-        "KAFKA_SECURITY_PROTOCOL": "PLAINTEXT",
-        "UNFURLBOT_SLACK_SIGNING": "1234",
-        "UNFURLBOT_SLACK_TOKEN": "1234",
-        "UNFURLBOT_SLACK_APP_ID": "1234",
-        "UNFURLBOT_GAFAELFAWR_TOKEN": "gt-1234",
-        "UNFURLBOT_ENVIRONMENT_URL": "https://example.com",
-    }
+    """Run pytest tests with Kafka testcontainer."""
+    _setup_testcontainers_logging()
+    _setup_testcontainers_env()
 
-    session.run(
-        "pytest",
-        "--cov=unfurlbot",
-        "--cov-branch",
-        "--cov-report=term",
-        "--cov-report=html",
-        *session.posargs,
-        env=env_vars,
-    )
+    from testcontainers.kafka import KafkaContainer
+
+    with KafkaContainer().with_kraft() as kafka:
+        env_vars = _make_env_vars({
+            "KAFKA_BOOTSTRAP_SERVERS": kafka.get_bootstrap_server(),
+        })
+
+        session.run(
+            "pytest",
+            "--cov=unfurlbot",
+            "--cov-branch",
+            "--cov-report=term",
+            "--cov-report=html",
+            *session.posargs,
+            env=env_vars,
+        )
 
 
-@nox.session(uv_groups=["dev"])
+@nox.session(uv_groups=["dev", "nox"])
 def test_coverage(session: nox.Session) -> None:
     """Run tests and generate coverage report."""
     test(session)

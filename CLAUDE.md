@@ -25,38 +25,44 @@ Sets up the development environment by installing dependencies with uv and confi
 ```bash
 make run
 # Or directly:
-tox run -e run
+uv run uvicorn unfurlbot.main:app --reload
 ```
 Starts the development server with auto-reload enabled via uvicorn.
 
 ### Testing
+
+**Note:** Always run nox with `uv run --only-group=nox nox` to ensure nox uses the correct dependency group.
+
 ```bash
+# Run all default sessions (lint, typing, test)
+uv run --only-group=nox nox
+
 # Run all tests with coverage
-tox run -e py
+uv run --only-group=nox nox -s test
 
 # Run specific test file
-pytest tests/services/jiraunfurler_test.py
+uv run pytest tests/services/jiraunfurler_test.py
 
 # Run with specific markers or keywords
-pytest -k "test_name"
+uv run pytest -k "test_name"
 
 # View coverage report
-tox run -e coverage-report
+uv run --only-group=nox nox -s test-coverage
 ```
 
 ### Type Checking
 ```bash
-tox run -e typing
+uv run --only-group=nox nox -s typing
 ```
 Runs mypy on both src and tests directories.
 
 ### Linting
 ```bash
-tox run -e lint
+uv run --only-group=nox nox -s lint
 # Or run pre-commit directly:
 pre-commit run --all-files
 ```
-Runs Ruff for formatting and linting.
+Runs Ruff for formatting and linting via pre-commit.
 
 ### Dependency Management
 ```bash
@@ -66,7 +72,7 @@ make update
 # Update only dependency pins
 make update-deps
 ```
-Uses uv to compile requirements from .in files to hashed .txt files.
+Uses uv to manage dependencies via uv.lock. Dependencies are defined in pyproject.toml using PEP 735 dependency groups.
 
 ## Architecture
 
@@ -141,4 +147,14 @@ Mock external services (Slack API, Jira Data Proxy) in tests. The `ConsumerConte
 
 ## Dependencies
 
-Runtime dependencies are defined in `requirements/main.in` and development dependencies in `requirements/dev.in`. After editing, run `make update-deps` to regenerate the pinned `.txt` files with hashes.
+Dependencies are defined in `pyproject.toml` using PEP 735 dependency groups:
+- `dependencies`: Runtime dependencies (FastAPI, Safir, FastStream, etc.)
+- `dev`: Development and testing dependencies (pytest, httpx, etc.)
+- `docs`: Documentation dependencies (Sphinx, documenteer, etc.)
+- `lint`: Linting dependencies (ruff, pre-commit, etc.)
+- `nox`: Nox testing framework dependencies
+- `typing`: Type checking dependencies (mypy, type stubs, etc.)
+
+After editing dependencies in `pyproject.toml`, run `make update-deps` to update the `uv.lock` file.
+
+**Note:** The `requirements/` directory still exists during the transition period for tox compatibility but will be removed once the migration to nox is complete.

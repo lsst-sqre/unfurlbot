@@ -5,6 +5,7 @@ help:
 	@echo "make run - Start a local development instance"
 	@echo "make update - Update pinned dependencies and run make init"
 	@echo "make update-deps - Update pinned dependencies"
+	@echo "make update-uv UV_VERSION=<version> - Update UV version in all config files"
 
 .PHONY: init
 init:
@@ -22,3 +23,7 @@ update: update-deps init
 update-deps:
 	uv lock --upgrade
 	uv run --group=lint pre-commit autoupdate
+
+.PHONY: update-uv
+update-uv:
+	./scripts/update-uv-version.sh $(UV_VERSION)

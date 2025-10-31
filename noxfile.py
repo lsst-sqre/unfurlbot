@@ -1,22 +1,23 @@
 """Nox configuration for unfurlbot."""
 
+import logging
 import os
 from pathlib import Path
 
 import nox
 import nox_uv
 
-
 # Default sessions (run with `nox`)
 nox.options.sessions = ["lint", "typing", "test"]
+nox.options.default_venv_backend = "uv"
 nox.options.reuse_existing_virtualenvs = True
 
 
 def _setup_testcontainers_logging() -> None:
     """Suppress overly-verbose testcontainers logging."""
-    import logging
-
-    logging.getLogger("testcontainers").setLevel(logging.WARNING)
+    logging.getLogger("testcontainers").setLevel(logging.ERROR)
+    logging.getLogger("docker").setLevel(logging.ERROR)
+    logging.getLogger("urllib3").setLevel(logging.ERROR)
 
 
 def _setup_testcontainers_env() -> None:
@@ -57,19 +58,19 @@ def _make_env_vars(extra: dict[str, str]) -> dict[str, str]:
     return env_vars
 
 
-@nox_uv.session(python="3.13", uv_groups=["lint"])
+@nox_uv.session(uv_groups=["lint"])
 def lint(session: nox.Session) -> None:
     """Run pre-commit linting."""
     session.run("pre-commit", "run", "--all-files")
 
 
-@nox_uv.session(python="3.13", uv_groups=["typing"])
+@nox_uv.session(uv_groups=["typing"])
 def typing(session: nox.Session) -> None:
     """Run mypy type checking."""
     session.run("mypy", "src/unfurlbot", "tests")
 
 
-@nox_uv.session(python="3.13", uv_groups=["dev", "nox"])
+@nox_uv.session(uv_groups=["dev"])
 def test(session: nox.Session) -> None:
     """Run pytest tests with Kafka testcontainer."""
     _setup_testcontainers_logging()
@@ -78,9 +79,11 @@ def test(session: nox.Session) -> None:
     from testcontainers.kafka import KafkaContainer
 
     with KafkaContainer().with_kraft() as kafka:
-        env_vars = _make_env_vars({
-            "KAFKA_BOOTSTRAP_SERVERS": kafka.get_bootstrap_server(),
-        })
+        env_vars = _make_env_vars(
+            {
+                "KAFKA_BOOTSTRAP_SERVERS": kafka.get_bootstrap_server(),
+            }
+        )
 
         session.run(
             "pytest",
@@ -93,14 +96,14 @@ def test(session: nox.Session) -> None:
         )
 
 
-@nox_uv.session(python="3.13", uv_groups=["dev", "nox"])
+@nox_uv.session(uv_groups=["dev", "nox"])
 def test_coverage(session: nox.Session) -> None:
     """Run tests and generate coverage report."""
     test(session)
     session.run("coverage", "report")
 
 
-@nox_uv.session(python="3.13", uv_groups=["docs"])
+@nox_uv.session(uv_groups=["docs"])
 def docs(session: nox.Session) -> None:
     """Build documentation with Sphinx."""
     session.run(
@@ -116,7 +119,7 @@ def docs(session: nox.Session) -> None:
     )
 
 
-@nox_uv.session(python="3.13", uv_groups=["docs"])
+@nox_uv.session(uv_groups=["docs"])
 def docs_linkcheck(session: nox.Session) -> None:
     """Check documentation links."""
     session.run(

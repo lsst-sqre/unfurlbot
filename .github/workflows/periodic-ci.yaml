@@ -11,7 +11,7 @@ name: Periodic CI
   workflow_dispatch: {}
 
 env:
-  PYTHON_VERSION: "3.12"
+  PYTHON_VERSION: "3.13"
 
 jobs:
   test:

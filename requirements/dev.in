@@ -15,6 +15,7 @@ coverage[toml]
 httpx
 mypy
 pre-commit
+pre-commit-uv
 pydantic
 pytest
 pytest-asyncio
@@ -24,3 +25,10 @@ ruff
 # Documentation
 scriv
 documenteer[guide]
+
+# Nox
+nox
+nox-uv>=0.6.1
+
+# Type stubs
+types-redis

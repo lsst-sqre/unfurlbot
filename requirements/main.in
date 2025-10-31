@@ -8,13 +8,13 @@
 #     make update-deps
 
 # These dependencies are for fastapi including some optional features.
-fastapi
-starlette
-uvicorn[standard]
+fastapi>=0.115.0
+starlette>=0.45.0
+uvicorn[standard]>=0.34.0
 
 # Other dependencies.
-pydantic>2
-pydantic-settings
-safir[redis]>=6.5.0
-faststream[kafka]
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+safir[redis,kafka]>=13.0.0
+faststream[kafka]>=0.5.44,<0.6
 rubin-squarebot>=0.8.0

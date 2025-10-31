@@ -1,6 +1,7 @@
 name: CI
 
 env:
+  UV_VERSION: "0.8.19"
   # Current supported Python version. For applications, there is generally no
   # reason to support multiple Python versions, so all actions are run with
   # this version. Quote the version to avoid interpretation as a floating
@@ -47,18 +48,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start Kafka
-        run: docker compose -f kafka-compose.yaml up -d
-
-      - name: Run tox
-        uses: lsst-sqre/run-tox@v1
+      - uses: astral-sh/setup-uv@v7
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          tox-envs: "py,coverage-report,typing"
-          tox-requirements: requirements/tox.txt
+          version: ${{ env.UV_VERSION }}
 
-      - name: Stop Kafka
-        run: docker compose -f kafka-compose.yaml down
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+
+      - name: Run tests with nox
+        run: uv run --only-group=nox nox -s typing test-coverage
 
   build:
     runs-on: ubuntu-latest

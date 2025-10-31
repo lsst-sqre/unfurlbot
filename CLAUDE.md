@@ -74,6 +74,19 @@ make update-deps
 ```
 Uses uv to manage dependencies via uv.lock. Dependencies are defined in pyproject.toml using PEP 735 dependency groups.
 
+### Available Nox Sessions
+
+The project uses nox for test automation. Available sessions (defined in `noxfile.py`):
+
+- **lint**: Run pre-commit hooks on all files
+- **typing**: Run mypy type checking on src and tests
+- **test**: Run pytest with Kafka testcontainers (includes coverage)
+- **test-coverage**: Run tests and display coverage report
+- **docs**: Build Sphinx documentation
+- **docs-linkcheck**: Check documentation links
+
+Default sessions (run with `uv run --only-group=nox nox`): lint, typing, test
+
 ## Architecture
 
 ### Request Flow

@@ -96,7 +96,7 @@ def test(session: nox.Session) -> None:
         )
 
 
-@nox_uv.session(uv_groups=["dev", "nox"])
+@nox_uv.session(name="test-coverage", uv_groups=["dev", "nox"])
 def test_coverage(session: nox.Session) -> None:
     """Run tests and generate coverage report."""
     test(session)
@@ -119,7 +119,7 @@ def docs(session: nox.Session) -> None:
     )
 
 
-@nox_uv.session(uv_groups=["docs"])
+@nox_uv.session(name="docs-linkcheck", uv_groups=["docs"])
 def docs_linkcheck(session: nox.Session) -> None:
     """Check documentation links."""
     session.run(

@@ -11,22 +11,22 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: POSIX",
     "Typing :: Typed",
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
-    "fastapi>=0.115.0",
-    "starlette>=0.45.0",
-    "uvicorn[standard]>=0.34.0",
-    "pydantic>=2.10.0",
-    "pydantic-settings>=2.7.0",
-    "safir[redis,kafka]>=13.0.0",
+    "fastapi>=0.137.0",
+    "starlette>=1.3.0",
+    "uvicorn[standard]>=0.38.0",
+    "pydantic>=2.12.0",
+    "pydantic-settings>=2.11.0",
+    "safir[redis,kafka]>=15.0.0",
     "faststream[kafka]>=0.7,<0.8",
-    "rubin-squarebot>=0.8.0",
+    "rubin-squarebot>=0.10.0",
 ]
 dynamic = ["version"]
 

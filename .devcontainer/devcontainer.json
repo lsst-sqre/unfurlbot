@@ -1,5 +1,5 @@
 {
-  // Project dev container for unfurlbot — a Python 3.13 + uv Squarebot backend.
+  // Project dev container for unfurlbot — a Python 3.14 + uv Squarebot backend.
   //
   // The test suite spins up Kafka via testcontainers (see noxfile.py), so this
   // declares the docker-in-docker Feature plus the containerUser/privileged/

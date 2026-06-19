@@ -5,12 +5,15 @@ help:
 	@echo "make run - Start a local development instance"
 	@echo "make update - Update pinned dependencies and run make init"
 	@echo "make update-deps - Update pinned dependencies"
-	@echo "make update-uv UV_VERSION=<version> - Update UV version in all config files"
+	@echo "make update-uv UV_VERSION=<version> - Update uv version in all config files"
+	@echo "make lint - Lint the code with pre-commit"
+	@echo "make typing - Run mypy"
+	@echo "make test - Run the test suite (requires Docker for Kafka)"
 
 .PHONY: init
 init:
 	uv sync --frozen --all-groups
-	uv run --group=lint pre-commit install
+	uv run --only-group=lint pre-commit install
 
 .PHONY: run
 run:
@@ -22,8 +25,21 @@ update: update-deps init
 .PHONY: update-deps
 update-deps:
 	uv lock --upgrade
-	uv run --group=lint pre-commit autoupdate
+	uv run --only-group=lint pre-commit autoupdate
+	./scripts/update-uv-version.sh
 
 .PHONY: update-uv
 update-uv:
 	./scripts/update-uv-version.sh $(UV_VERSION)
+
+.PHONY: lint
+lint:
+	uv run --only-group=lint pre-commit run --all-files
+
+.PHONY: typing
+typing:
+	uv run --only-group=nox nox -s typing
+
+.PHONY: test
+test:
+	uv run --only-group=nox nox -s test

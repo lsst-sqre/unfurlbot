@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Unfurlbot is a Squarebot backend that provides link unfurling for tokens like Jira issue keys in Slack messages. It's deployed with Phalanx to Rubin Observatory's Roundtable cluster.
 
 **Tech Stack:**
+- Python 3.14 (pinned via `.python-version`; `requires-python = ">=3.14"`)
+- uv `0.11.21` for dependency management (a single committed `uv.lock`)
 - FastAPI for HTTP endpoints
 - FastStream for Kafka message consumption
 - Safir library for Rubin Observatory infrastructure patterns
@@ -31,20 +33,23 @@ Starts the development server with auto-reload enabled via uvicorn.
 
 ### Testing
 
-**Note:** Always run nox with `uv run --only-group=nox nox` to ensure nox uses the correct dependency group.
+**Note:** Always run nox with `uv run --only-group=nox nox` to ensure nox uses the correct dependency group. The `test` session stands up Kafka via testcontainers (Docker must be running) and sets the required `UNFURLBOT_*` / `KAFKA_*` env vars, so run focused tests through nox rather than `uv run pytest` directly.
 
 ```bash
+# Run the test suite (convenience target)
+make test
+
 # Run all default sessions (lint, typing, test)
 uv run --only-group=nox nox
 
 # Run all tests with coverage
 uv run --only-group=nox nox -s test
 
-# Run specific test file
-uv run pytest tests/services/jiraunfurler_test.py
+# Run a specific test through the nox test session
+uv run --only-group=nox nox -s test -- tests/services/jiraunfurler_test.py
 
-# Run with specific markers or keywords
-uv run pytest -k "test_name"
+# Run a specific test by node id
+uv run --only-group=nox nox -s test -- tests/services/jiraunfurler_test.py::test_name
 
 # View coverage report
 uv run --only-group=nox nox -s test-coverage
@@ -52,27 +57,35 @@ uv run --only-group=nox nox -s test-coverage
 
 ### Type Checking
 ```bash
+make typing
+# Or directly:
 uv run --only-group=nox nox -s typing
 ```
-Runs mypy on both src and tests directories.
+Runs mypy on the noxfile, src, and tests.
 
 ### Linting
 ```bash
+make lint
+# Or directly:
+uv run --only-group=lint pre-commit run --all-files
+# (nox session equivalent:)
 uv run --only-group=nox nox -s lint
-# Or run pre-commit directly:
-pre-commit run --all-files
 ```
 Runs Ruff for formatting and linting via pre-commit.
 
 ### Dependency Management
 ```bash
-# Update all dependencies
+# Update all dependencies and re-run make init
 make update
 
-# Update only dependency pins
+# Update only dependency pins (regenerates uv.lock, runs pre-commit
+# autoupdate, and refreshes the pinned uv version)
 make update-deps
+
+# Bump the pinned uv version everywhere (Dockerfile, devcontainer, CI)
+make update-uv UV_VERSION=0.11.21
 ```
-Uses uv to manage dependencies via uv.lock. Dependencies are defined in pyproject.toml using PEP 735 dependency groups.
+Uses uv to manage dependencies via `uv.lock`. Dependencies are defined in `pyproject.toml` using PEP 735 dependency groups. `make update-deps` also runs `./scripts/update-uv-version.sh`, which propagates the pinned uv version (default `0.11.21`) into the production `Dockerfile`, `.devcontainer/Dockerfile`, and the `UV_VERSION` env in the GitHub Actions workflows.
 
 ### Available Nox Sessions
 

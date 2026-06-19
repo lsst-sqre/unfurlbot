@@ -46,7 +46,6 @@ docs = [
 lint = [
     "ruff",
     "pre-commit",
-    "pre-commit-uv",
 ]
 nox = [
     "nox",

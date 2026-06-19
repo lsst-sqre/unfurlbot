@@ -76,7 +76,7 @@ def test(session: nox.Session) -> None:
     _setup_testcontainers_logging()
     _setup_testcontainers_env()
 
-    from testcontainers.kafka import KafkaContainer
+    from testcontainers.kafka import KafkaContainer  # noqa: PLC0415
 
     with KafkaContainer().with_kraft() as kafka:
         env_vars = _make_env_vars(

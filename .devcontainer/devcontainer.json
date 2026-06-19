@@ -1,0 +1,37 @@
+{
+  // Project dev container for unfurlbot — a Python 3.13 + uv Squarebot backend.
+  //
+  // The test suite spins up Kafka via testcontainers (see noxfile.py), so this
+  // declares the docker-in-docker Feature plus the containerUser/privileged/
+  // remoteUser trio that lets Docker-in-Docker start cleanly. Stoker derives
+  // its AFK sandbox from this file and carries those keys through, so the
+  // sandbox's DinD comes up exactly as it does here.
+  "name": "unfurlbot",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    // Node is here so Claude Code (distributed via npm) can be installed in
+    // the dev container; the app itself has no Node component.
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    // Required for the testcontainers-based Kafka tests.
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  // The container starts as root so docker-in-docker's init (PID 1) can launch
+  // dockerd; --privileged lets dockerd manage iptables/cgroups. Lifecycle and
+  // agent commands still run as the unprivileged vscode user.
+  "containerUser": "root",
+  "remoteUser": "vscode",
+  "privileged": true,
+  "postCreateCommand": "uv sync && uv run pre-commit install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker"
+      ]
+    }
+  }
+}

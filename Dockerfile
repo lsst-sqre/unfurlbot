@@ -12,24 +12,35 @@
 #   - Runs a non-root user.
 #   - Sets up the entrypoint and port.
 
-FROM python:3.13.7-slim-bookworm AS base-image
+FROM python:3.14.6-slim-bookworm AS base-image
 
 # Update system packages
 COPY scripts/install-base-packages.sh .
-RUN ./install-base-packages.sh && rm ./install-base-packages.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./install-base-packages.sh && rm ./install-base-packages.sh
 
 FROM base-image AS install-image
 
 # Install uv.
-COPY --from=ghcr.io/astral-sh/uv:0.8.19 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.21 /uv /bin/uv
 
 # Install system packages only needed for building dependencies.
 COPY scripts/install-dependency-packages.sh .
-RUN ./install-dependency-packages.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./install-dependency-packages.sh
 
 # Create working directory and set up virtual environment
 WORKDIR /app
+
+# Use a copy link mode since the cache and the virtual environment may be on
+# separate file systems.
 ENV UV_LINK_MODE=copy
+
+# Use the system Python from the base image rather than letting uv download
+# its own managed Python.
+ENV UV_PYTHON_PREFERENCE=only-system
 
 # Install dependencies with cache and bind mounts
 RUN --mount=type=cache,target=/root/.cache/uv \

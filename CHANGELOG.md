@@ -7,6 +7,17 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.5.1'></a>
+## 0.5.1 (2026-06-19)
+
+### Other changes
+
+- Unfurlbot now requires Python 3.14.
+
+- Container images are now built for both `linux/amd64` and `linux/arm64`.
+
+- Modernized the application infrastructure to the current SQuaRE app archetype. This includes upgrading FastStream from 0.5 to 0.7 (keeping the `KafkaRouter` + AsyncAPI design), bumping Safir to 15 and rubin-squarebot to 0.10 along with the FastAPI, uvicorn, pydantic, and starlette floors, pinning uv to 0.11.21, refreshing the pre-commit hooks and ruff configuration, and rebuilding the GitHub Actions CI for multiplatform image builds.
+
 <a id='changelog-0.5.0'></a>
 
 ## 0.5.0 (2025-01-28)

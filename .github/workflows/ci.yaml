@@ -1,11 +1,10 @@
 name: CI
 
 env:
-  # Current supported Python version. For applications, there is generally no
-  # reason to support multiple Python versions, so all actions are run with
-  # this version. Quote the version to avoid interpretation as a floating
-  # point number.
-  PYTHON_VERSION: "3.12"
+  # Current supported uv version. The uv documentation recommends pinning
+  # this. The version should match the version used in .pre-commit-config.yaml
+  # and frozen in uv.lock. It is updated by make update-deps.
+  UV_VERSION: "0.11.21"
 
 "on":
   merge_group: {}
@@ -23,6 +22,8 @@ env:
       - "u/**"
     tags:
       - "*"
+  release:
+    types: [published]
 
 jobs:
   lint:
@@ -30,40 +31,37 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          version: ${{ env.UV_VERSION }}
 
       - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
+        run: uv run --only-group=lint pre-commit run --all-files
 
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Start Kafka
-        run: docker compose -f kafka-compose.yaml up -d
-
-      - name: Run tox
-        uses: lsst-sqre/run-tox@v1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          tox-envs: "py,coverage-report,typing"
-          tox-requirements: requirements/tox.txt
+          version: ${{ env.UV_VERSION }}
 
-      - name: Stop Kafka
-        run: docker compose -f kafka-compose.yaml down
+      - name: Run tests with nox
+        run: uv run --only-group=nox nox -s typing test-coverage
 
   build:
-    runs-on: ubuntu-latest
     needs: [lint, test]
-    timeout-minutes: 10
+    secrets: inherit
+    uses: lsst-sqre/multiplatform-build-and-push/.github/workflows/build.yaml@v4
+    with:
+      images: ghcr.io/${{ github.repository }}
 
     # Only do Docker builds of tagged releases and pull requests from ticket
     # branches.  This will still trigger on pull requests from untrusted
@@ -71,17 +69,6 @@ jobs:
     # but in this case the build will fail with an error since the secret
     # won't be set.
     if: >
-      github.event_name != 'merge_group'
-      && (startsWith(github.ref, 'refs/tags/')
-          || startsWith(github.head_ref, 'tickets/'))
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: lsst-sqre/build-and-push-to-ghcr@v1
-        id: build
-        with:
-          image: ${{ github.repository }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      (github.event_name == 'release' && github.event.action == 'published')
+      || (github.event_name != 'merge_group'
+          && startsWith(github.head_ref, 'tickets/'))

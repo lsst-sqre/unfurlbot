@@ -1,17 +1,17 @@
 # This is a separate run of the Python test suite that runs from a schedule,
-# doesn't cache the tox environment, and updates pinned dependencies first.
+# doesn't cache the nox environment, and updates pinned dependencies first.
 # The purpose is to test compatibility with the latest versions of
 # dependencies.
 
 name: Periodic CI
 
+env:
+  UV_VERSION: "0.11.21"
+
 "on":
   schedule:
     - cron: "0 12 * * 1"
   workflow_dispatch: {}
-
-env:
-  PYTHON_VERSION: "3.12"
 
 jobs:
   test:
@@ -19,34 +19,18 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          version: ${{ env.UV_VERSION }}
 
       - name: Update dependencies
-        run: |
-          pip install --upgrade uv
-          uv venv
-          source .venv/bin/activate
-          make update-deps
-        shell: bash
+        run: make update-deps
 
-      - name: Start Kafka
-        run: docker compose -f kafka-compose.yaml up -d
-
-      - name: Run tests in tox
-        uses: lsst-sqre/run-tox@v1
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          tox-envs: "lint,typing,py"
-          tox-requirements: requirements/tox.txt
-          use-cache: false
-
-      - name: Stop Kafka
-        run: docker compose -f kafka-compose.yaml down
+      - name: Run tests with latest dependencies
+        run: uv run --only-group=nox nox -s lint typing test-coverage
 
       - name: Report status
         if: failure()

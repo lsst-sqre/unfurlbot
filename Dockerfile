@@ -4,59 +4,71 @@
 #   Updates the base Python image with security patches and common system
 #   packages. This image becomes the base of all other images.
 # install-image
-#   Installs third-party dependencies (requirements/main.txt) and the
-#   application into a virtual environment. This virtual environment is ideal
-#   for copying across build stages.
+#   Installs third-party dependencies and the application into a virtual
+#   environment using uv sync. This virtual environment is ideal for copying
+#   across build stages.
 # runtime-image
 #   - Copies the virtual environment into place.
 #   - Runs a non-root user.
 #   - Sets up the entrypoint and port.
 
-FROM python:3.12.8-slim-bookworm AS base-image
+FROM python:3.14.6-slim-bookworm AS base-image
 
 # Update system packages
 COPY scripts/install-base-packages.sh .
-RUN ./install-base-packages.sh && rm ./install-base-packages.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./install-base-packages.sh && rm ./install-base-packages.sh
 
 FROM base-image AS install-image
 
 # Install uv.
-COPY --from=ghcr.io/astral-sh/uv:0.5.5 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:0.11.21 /uv /bin/uv
 
 # Install system packages only needed for building dependencies.
 COPY scripts/install-dependency-packages.sh .
-RUN ./install-dependency-packages.sh
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    ./install-dependency-packages.sh
 
-# Create a Python virtual environment
-ENV VIRTUAL_ENV=/opt/venv
-RUN uv venv $VIRTUAL_ENV
+# Create working directory and set up virtual environment
+WORKDIR /app
 
-# Make sure we use the virtualenv
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# Use a copy link mode since the cache and the virtual environment may be on
+# separate file systems.
+ENV UV_LINK_MODE=copy
 
-# Install the app's Python runtime dependencies
-COPY requirements/main.txt ./requirements.txt
-RUN uv pip install --compile-bytecode --verify-hashes --no-cache \
-    -r requirements.txt
+# Use the system Python from the base image rather than letting uv download
+# its own managed Python.
+ENV UV_PYTHON_PREFERENCE=only-system
 
-# Install the application itself.
-COPY . /workdir
-WORKDIR /workdir
-RUN uv pip install --compile-bytecode --no-cache .
+# Install dependencies with cache and bind mounts
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-default-groups --compile-bytecode --no-install-project
+
+# Install the application itself
+ADD . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --no-deps --compile-bytecode .
 
 FROM base-image AS runtime-image
 
 # Create a non-root user
 RUN useradd --create-home appuser
 
-# Copy the virtualenv
-COPY --from=install-image /opt/venv /opt/venv
+# Copy the application and virtual environment
+COPY --from=install-image /app /app
 
 # Make sure we use the virtualenv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Switch to the non-root user.
 USER appuser
+
+# Set working directory
+WORKDIR /app
 
 # Expose the port.
 EXPOSE 8080

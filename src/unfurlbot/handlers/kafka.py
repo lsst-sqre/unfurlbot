@@ -16,6 +16,10 @@ from ..dependencies.consumercontext import (
 __all__ = ["handle_slack_message", "kafka_router"]
 
 
+# The KafkaRouter is included via app.include_router() in main.py. As of
+# FastStream 0.7 the broker is started and stopped explicitly in the
+# application lifespan (see main.py) because the router's automatic lifespan
+# hook is one-shot and does not restart the broker between lifespan entries.
 kafka_router = KafkaRouter(
     **config.kafka.to_faststream_params(), logger=get_logger(__name__)
 )

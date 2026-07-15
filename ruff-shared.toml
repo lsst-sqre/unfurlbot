@@ -20,7 +20,6 @@
 # Reference for rules: https://docs.astral.sh/ruff/rules/
 exclude = ["docs/**"]
 line-length = 79
-target-version = "py314"
 
 [format]
 docstring-code-format = true
@@ -147,6 +146,9 @@ builtins-ignorelist = [
 [lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false
+
+[lint.isort]
+split-on-trailing-comma = false
 
 [lint.pydocstyle]
 convention = "numpy"

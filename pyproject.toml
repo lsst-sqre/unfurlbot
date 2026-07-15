@@ -134,7 +134,6 @@ target-version = "py314"
 
 [tool.ruff.lint.isort]
 known-first-party = ["unfurlbot", "tests"]
-split-on-trailing-comma = false
 
 [tool.scriv]
 categories = [

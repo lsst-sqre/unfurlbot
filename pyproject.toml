@@ -130,6 +130,7 @@ python_files = ["tests/*.py", "tests/*/*.py"]
 # section for project-specific ignore rules.
 [tool.ruff]
 extend = "ruff-shared.toml"
+target-version = "py314"
 
 [tool.ruff.lint.isort]
 known-first-party = ["unfurlbot", "tests"]

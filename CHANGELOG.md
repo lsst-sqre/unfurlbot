@@ -7,6 +7,15 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.5.2'></a>
+## 0.5.2 (2026-07-20)
+
+### Other changes
+
+- The CI `build` job now also runs for Dependabot pull requests, building the Docker image for both `linux/amd64` and `linux/arm64` without pushing it. This reports the required `build / manifest` status check (as a passing `skipped` conclusion) so Dependabot PRs can satisfy the `main` branch ruleset and auto-merge. Release and ticket-branch builds are unchanged and still push images.
+
+- Update pinned dependencies and pre-commit hooks.
+
 <a id='changelog-0.5.1'></a>
 ## 0.5.1 (2026-06-19)
 

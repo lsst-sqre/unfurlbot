@@ -90,8 +90,8 @@ def _make_env_vars(extra: dict[str, str]) -> dict[str, str]:
 
 @nox_uv.session(uv_groups=["lint"])
 def lint(session: nox.Session) -> None:
-    """Run pre-commit linting."""
-    session.run("pre-commit", "run", "--all-files")
+    """Run pre-commit hooks with prek."""
+    session.run("prek", "run", "--all-files")
 
 
 @nox_uv.session(uv_groups=["typing"])

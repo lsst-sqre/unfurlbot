@@ -40,14 +40,15 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
+    "uv",
 ]
 docs = [
     "scriv",
     "documenteer[guide]",
 ]
 lint = [
+    "prek",
     "ruff",
-    "pre-commit",
 ]
 nox = [
     "nox",

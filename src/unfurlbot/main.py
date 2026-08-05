@@ -26,7 +26,7 @@ __all__ = ["app", "config"]
 
 
 @asynccontextmanager
-async def lifespan(api: FastAPI) -> AsyncIterator[None]:
+async def lifespan(fastapi_app: FastAPI) -> AsyncIterator[None]:
     """Set up and tear down the application.
 
     Note
@@ -55,7 +55,7 @@ configure_logging(
 )
 configure_uvicorn_logging(config.log_level)
 
-api = FastAPI(
+fastapi_app = FastAPI(
     title="unfurlbot",
     description=metadata("unfurlbot")["Summary"],
     version=version("unfurlbot"),
@@ -67,13 +67,13 @@ api = FastAPI(
 """The inner FastAPI application for unfurlbot."""
 
 # Attach the routers.
-api.include_router(internal_router)
+fastapi_app.include_router(internal_router)
 
 # Add middleware.
-api.add_middleware(XForwardedMiddleware)
+fastapi_app.add_middleware(XForwardedMiddleware)
 
 # Wrap the FastAPI app with the FastStream Kafka broker. This must come
 # after all subscriber modules are imported (the `handlers.kafka` import
 # above guarantees that).
-app = FastStreamAPI(kafka_broker, application=api)
+app = FastStreamAPI(kafka_broker, application=fastapi_app)
 """The ASGI application for unfurlbot, serving both HTTP and Kafka."""

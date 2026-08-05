@@ -3,7 +3,7 @@
 from typing import Annotated
 
 from fastapi import Depends
-from faststream.kafka.fastapi import KafkaRouter
+from faststream.kafka import KafkaBroker
 from rubin.squarebot.models.kafka import SquarebotSlackMessageValue
 from structlog import get_logger
 
@@ -13,19 +13,17 @@ from ..dependencies.consumercontext import (
     consumer_context_dependency,
 )
 
-__all__ = ["handle_slack_message", "kafka_router"]
+__all__ = ["handle_slack_message", "kafka_broker"]
 
 
-# The KafkaRouter is included via app.include_router() in main.py. As of
-# FastStream 0.7 the broker is started and stopped explicitly in the
-# application lifespan (see main.py) because the router's automatic lifespan
-# hook is one-shot and does not restart the broker between lifespan entries.
-kafka_router = KafkaRouter(
+# The broker is wrapped by FastStreamAPI in main.py, which starts it before
+# entering the application lifespan and stops it after exit.
+kafka_broker = KafkaBroker(
     **config.kafka.to_faststream_params(), logger=get_logger(__name__)
 )
 
 
-@kafka_router.subscriber(
+@kafka_broker.subscriber(
     config.message_channels_topic,
     config.message_groups_topic,
     config.message_im_topic,

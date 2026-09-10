@@ -10,16 +10,20 @@ from structlog import get_logger
 from ..config import config
 from ..dependencies.consumercontext import (
     ConsumerContext,
+    MessageContextMiddleware,
     consumer_context_dependency,
 )
 
 __all__ = ["handle_slack_message", "kafka_broker"]
 
 
-# The broker is wrapped by FastStreamAPI in main.py, which starts it before
-# entering the application lifespan and stops it after exit.
+# The broker is wrapped by FastStreamAPI in main.py, which starts it inside
+# the application lifespan (after the lifespan's startup code, before its
+# shutdown code).
 kafka_broker = KafkaBroker(
-    **config.kafka.to_faststream_params(), logger=get_logger(__name__)
+    **config.kafka.to_faststream_params(),
+    logger=get_logger(__name__),
+    middlewares=[MessageContextMiddleware],
 )
 
 

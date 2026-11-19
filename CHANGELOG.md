@@ -7,6 +7,13 @@ Find changes for the upcoming release in the project's [changelog.d directory](h
 
 <!-- scriv-insert-here -->
 
+<a id='changelog-0.5.5'></a>
+## 0.5.5 (2026-11-19)
+
+### Other changes
+
+- Update pinned dependencies, including FastAPI 0.165, Starlette 1.10, Pydantic 2.14, faststream 0.7.8, faststream-fastapi 1.4.0, Safir 15.2.3, and uv 0.13.9 (in the Dockerfile, CI, and pre-commit configuration as well as `uv.lock`). This also picks up the security fixes proposed by Dependabot for soupsieve (now 4.1.2) and tornado (now 6.6.1). Both are only installed through the `docs` dependency group and are not part of the Docker image.
+
 <a id='changelog-0.5.4'></a>
 ## 0.5.4 (2026-10-21)
 
